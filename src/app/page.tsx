@@ -1,7 +1,30 @@
 import Link from "next/link";
 import { TextureGenerator } from "@/components/texture-generator";
+import { PlatformComboBanner } from "@/components/platform-banner";
 import { SITE_URL, breadcrumbJsonLd, faqJsonLd, softwareAppJsonLd } from "@/lib/seo";
-import { ENGINE_WORKFLOWS, MATERIAL_PAGES } from "@/lib/keyword-clusters";
+import { MATERIAL_PAGES } from "@/lib/keyword-clusters";
+import { PLATFORMS } from "@/lib/platforms";
+
+/** 首页平台卡片：直接复用平台注册表，避免两处维护 */
+const PLATFORM_CARDS = PLATFORMS.map((p) => ({
+  ...p,
+  href:
+    p.id === "unreal"
+      ? "/unreal-engine-texture-generator"
+      : p.id === "blender"
+        ? "/blender-texture-generator"
+        : p.id === "roblox"
+          ? "/roblox-texture-generator"
+          : "/unity-texture-generator",
+  blurb:
+    p.id === "roblox"
+      ? "SurfaceAppearance four-map structure with a packed MetalnessMap."
+      : p.id === "unreal"
+        ? "Packed Mask Map (R=AO, G=Roughness, B=Metallic) for UE5 materials."
+        : p.id === "blender"
+          ? "Five-channel pack plus a Python script that builds the node tree."
+          : "Editor script that fixes every import setting for URP and HDRP.",
+}));
 
 const FEATURES = [
   {
@@ -373,27 +396,32 @@ export default function HomePage() {
             Texture generators for your 3D software
           </h2>
           <p className="mt-4 text-base leading-relaxed text-ink-600">
-            Same engine, different wiring. Each page covers the exact import settings, texture
-            address modes and material graph nodes for that tool.
+            A texture that works in Unity does not drop straight into Roblox. Each platform gets its
+            own map structure, import script and material presets.
           </p>
         </div>
 
-        <div className="mt-10 grid gap-5 md:grid-cols-3">
-          {ENGINE_WORKFLOWS.map((e) => (
+        <div className="mt-10">
+          <PlatformComboBanner platforms={PLATFORM_CARDS} />
+        </div>
+
+        <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          {PLATFORM_CARDS.map((p) => (
             <Link
-              key={e.slug}
-              href={`/${e.slug}`}
-              className="surface-card p-6 transition-shadow hover:shadow-md"
+              key={p.id}
+              href={p.href}
+              className="surface-card p-5 transition-shadow hover:shadow-md"
             >
-              <span className="inline-flex rounded-full bg-azure-100 px-3 py-1 text-xs font-bold uppercase tracking-wide text-azure-700">
-                {e.name}
+              <span
+                className="inline-flex rounded-full px-3 py-1 text-xs font-bold uppercase tracking-wide"
+                style={{ background: p.brandSoft, color: p.brandInk }}
+              >
+                {p.shortName}
               </span>
-              <h3 className="mt-4 font-display text-xl font-bold text-ink-900">{e.h1}</h3>
-              <p className="mt-2 text-sm leading-relaxed text-ink-600">
-                Import settings, wrap modes and material wiring for {e.name}.
-              </p>
+              <h3 className="mt-4 font-display text-lg font-bold text-ink-900">{p.name} textures</h3>
+              <p className="mt-2 text-sm leading-relaxed text-ink-600">{p.blurb}</p>
               <span className="mt-4 inline-flex items-center gap-1.5 text-sm font-bold text-sun-600">
-                Open guide <span aria-hidden="true">&rarr;</span>
+                Open workflow <span aria-hidden="true">&rarr;</span>
               </span>
             </Link>
           ))}

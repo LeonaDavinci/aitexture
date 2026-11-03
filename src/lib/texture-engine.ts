@@ -57,6 +57,8 @@ export interface MaterialRecipe {
   gap: number;
   /** 0-1，细节层级强度 */
   detail: number;
+  /** 是否为金属材质（决定金属度通道） */
+  metallic: boolean;
   seed: Seed;
 }
 
@@ -69,27 +71,35 @@ export interface TextureResult {
 
 const MATERIAL_DEFAULTS: Record<
   MaterialKind,
-  { base: string; accent: string; scale: number; roughness: number; gap: number; detail: number }
+  {
+    base: string;
+    accent: string;
+    scale: number;
+    roughness: number;
+    gap: number;
+    detail: number;
+    metallic: boolean;
+  }
 > = {
-  wood: { base: "#8b5a2b", accent: "#5a3418", scale: 1, roughness: 0.62, gap: 0.35, detail: 0.6 },
-  brick: { base: "#a4472c", accent: "#d9cfc0", scale: 1, roughness: 0.8, gap: 0.85, detail: 0.55 },
-  concrete: { base: "#9a9a97", accent: "#6d6d6a", scale: 1, roughness: 0.85, gap: 0.15, detail: 0.5 },
-  stone: { base: "#8d8a83", accent: "#4f4d48", scale: 1, roughness: 0.78, gap: 0.45, detail: 0.7 },
-  fabric: { base: "#c8b9a3", accent: "#8a7a63", scale: 1, roughness: 0.9, gap: 0.3, detail: 0.45 },
-  leather: { base: "#7a4a2e", accent: "#3d2415", scale: 1, roughness: 0.6, gap: 0.5, detail: 0.7 },
-  marble: { base: "#efeeea", accent: "#8a8b8f", scale: 1, roughness: 0.25, gap: 0.1, detail: 0.35 },
-  metal: { base: "#a9adb4", accent: "#6a6f77", scale: 1, roughness: 0.35, gap: 0.08, detail: 0.5 },
-  rust: { base: "#8c4a21", accent: "#3a2417", scale: 1, roughness: 0.88, gap: 0.45, detail: 0.75 },
-  tile: { base: "#e8e6e1", accent: "#b9b4ab", scale: 1, roughness: 0.2, gap: 0.8, detail: 0.25 },
-  asphalt: { base: "#3a3a3c", accent: "#1c1c1e", scale: 1, roughness: 0.92, gap: 0.25, detail: 0.8 },
-  sand: { base: "#d9c39a", accent: "#b39a6e", scale: 1, roughness: 0.9, gap: 0.12, detail: 0.45 },
-  snow: { base: "#f4f8ff", accent: "#d3dff0", scale: 1, roughness: 0.55, gap: 0.1, detail: 0.4 },
-  grass: { base: "#4f7f36", accent: "#2d4a20", scale: 1, roughness: 0.88, gap: 0.3, detail: 0.85 },
-  mud: { base: "#5b4326", accent: "#33240f", scale: 1, roughness: 0.85, gap: 0.3, detail: 0.6 },
-  glass: { base: "#cfe6f2", accent: "#8fb6c9", scale: 1, roughness: 0.08, gap: 0.05, detail: 0.2 },
-  carbon: { base: "#22262c", accent: "#0d1014", scale: 1, roughness: 0.32, gap: 0.2, detail: 0.6 },
-  paper: { base: "#f3f0e6", accent: "#d8d2c2", scale: 1, roughness: 0.9, gap: 0.1, detail: 0.35 },
-  water: { base: "#2f6f8f", accent: "#173f57", scale: 1, roughness: 0.15, gap: 0.05, detail: 0.4 },
+  wood: { base: "#8b5a2b", accent: "#5a3418", scale: 1, roughness: 0.62, gap: 0.35, detail: 0.6, metallic: false },
+  brick: { base: "#a4472c", accent: "#d9cfc0", scale: 1, roughness: 0.8, gap: 0.85, detail: 0.55, metallic: false },
+  concrete: { base: "#9a9a97", accent: "#6d6d6a", scale: 1, roughness: 0.85, gap: 0.15, detail: 0.5, metallic: false },
+  stone: { base: "#8d8a83", accent: "#4f4d48", scale: 1, roughness: 0.78, gap: 0.45, detail: 0.7, metallic: false },
+  fabric: { base: "#c8b9a3", accent: "#8a7a63", scale: 1, roughness: 0.9, gap: 0.3, detail: 0.45, metallic: false },
+  leather: { base: "#7a4a2e", accent: "#3d2415", scale: 1, roughness: 0.6, gap: 0.5, detail: 0.7, metallic: false },
+  marble: { base: "#efeeea", accent: "#8a8b8f", scale: 1, roughness: 0.25, gap: 0.1, detail: 0.35, metallic: false },
+  metal: { base: "#a9adb4", accent: "#6a6f77", scale: 1, roughness: 0.35, gap: 0.08, detail: 0.5, metallic: true },
+  rust: { base: "#8c4a21", accent: "#3a2417", scale: 1, roughness: 0.88, gap: 0.45, detail: 0.75, metallic: true },
+  tile: { base: "#e8e6e1", accent: "#b9b4ab", scale: 1, roughness: 0.2, gap: 0.8, detail: 0.25, metallic: false },
+  asphalt: { base: "#3a3a3c", accent: "#1c1c1e", scale: 1, roughness: 0.92, gap: 0.25, detail: 0.8, metallic: false },
+  sand: { base: "#d9c39a", accent: "#b39a6e", scale: 1, roughness: 0.9, gap: 0.12, detail: 0.45, metallic: false },
+  snow: { base: "#f4f8ff", accent: "#d3dff0", scale: 1, roughness: 0.55, gap: 0.1, detail: 0.4, metallic: false },
+  grass: { base: "#4f7f36", accent: "#2d4a20", scale: 1, roughness: 0.88, gap: 0.3, detail: 0.85, metallic: false },
+  mud: { base: "#5b4326", accent: "#33240f", scale: 1, roughness: 0.85, gap: 0.3, detail: 0.6, metallic: false },
+  glass: { base: "#cfe6f2", accent: "#8fb6c9", scale: 1, roughness: 0.08, gap: 0.05, detail: 0.2, metallic: false },
+  carbon: { base: "#22262c", accent: "#0d1014", scale: 1, roughness: 0.32, gap: 0.2, detail: 0.6, metallic: true },
+  paper: { base: "#f3f0e6", accent: "#d8d2c2", scale: 1, roughness: 0.9, gap: 0.1, detail: 0.35, metallic: false },
+  water: { base: "#2f6f8f", accent: "#173f57", scale: 1, roughness: 0.15, gap: 0.05, detail: 0.4, metallic: false },
 };
 
 const KIND_KEYWORDS: Array<[MaterialKind, string[]]> = [
@@ -176,6 +186,7 @@ export function parsePrompt(prompt: string, seed: Seed = 1): MaterialRecipe {
     roughness: d.roughness,
     gap: d.gap,
     detail: d.detail,
+    metallic: d.metallic,
     seed: seed >>> 0,
   };
 
@@ -531,6 +542,80 @@ export function heightToNormal(height: Float32Array, size: number, strength = 2.
       d[o + 2] = Math.round((1 / len * 0.5 + 0.5) * 255);
       d[o + 3] = 255;
     }
+  }
+  return out;
+}
+
+/**
+ * 金属度贴图：由材质类型决定是否为金属，非金属区域为 0。
+ * 金属表面（metal / rust / carbon）在磨损处降低金属度，露出基底。
+ */
+export function heightToMetalness(
+  height: Float32Array,
+  size: number,
+  isMetal: boolean,
+  wearAmount = 0.35,
+): ImageData {
+  const out = new ImageData(size, size);
+  const d = out.data;
+  for (let i = 0; i < height.length; i++) {
+    // 凸起处保持金属度，凹陷/磨损处按 wearAmount 衰减，露出非金属基底
+    const h = height[i];
+    const wear = isMetal ? clamp01(1 - smoothMix(0.25, 0.75, h) * wearAmount) : 0;
+    const m = isMetal ? clamp01(0.55 + h * 0.45) * wear : 0;
+    const o = i * 4;
+    d[o] = d[o + 1] = d[o + 2] = Math.round(m * 255);
+    d[o + 3] = 255;
+  }
+  return out;
+}
+
+/**
+ * Roblox 专用打包：MetalnessMap（R = 金属度，G = 反射率）
+ * Roblox Studio 的 SurfaceAppearance 使用这张图同时控制金属与反射。
+ */
+export function packRobloxMetalness(
+  metalness: ImageData,
+  height: Float32Array,
+  size: number,
+  reflectance = 0.5,
+): ImageData {
+  const out = new ImageData(size, size);
+  const d = out.data;
+  const s = metalness.data;
+  for (let i = 0; i < size * size; i++) {
+    const o = i * 4;
+    // R = 金属度；G = 反射率（非金属区约 0.5，金属区约 0.7）
+    const m = s[o] / 255;
+    const h = height[i];
+    const isMetal = m > 0.5;
+    const r = isMetal ? 0.7 : reflectance;
+    d[o] = s[o];
+    d[o + 1] = Math.round(r * 255);
+    d[o + 2] = 0;
+    d[o + 3] = 255;
+  }
+  return out;
+}
+
+/**
+ * Unreal Engine 专用打包：Mask Map（R = AO，G = Roughness，B = Metallic）
+ * UE5 的标准做法，把三张灰度图合成一张，省三次采样。
+ */
+export function packUnrealMask(
+  ao: ImageData,
+  roughness: ImageData,
+  metalness: ImageData,
+  size: number,
+): ImageData {
+  const out = new ImageData(size, size);
+  const d = out.data;
+  for (let i = 0; i < size * size; i++) {
+    const o = i * 4;
+    d[o] = ao.data[o];
+    d[o + 1] = roughness.data[o];
+    d[o + 2] = metalness.data[o];
+    d[o + 3] = 255;
   }
   return out;
 }

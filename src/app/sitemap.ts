@@ -24,6 +24,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { url: "/pbr-texture-generator", priority: 0.88, changeFrequency: "weekly" },
 
     // 集群 4：软件工作流
+    { url: "/roblox-texture-generator", priority: 0.85, changeFrequency: "monthly" },
     { url: "/blender-texture-generator", priority: 0.82, changeFrequency: "monthly" },
     { url: "/unreal-engine-texture-generator", priority: 0.82, changeFrequency: "monthly" },
     { url: "/unity-texture-generator", priority: 0.8, changeFrequency: "monthly" },

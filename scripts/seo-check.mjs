@@ -13,6 +13,7 @@ const ROUTES = [
   "/ai-texture-generator",
   "/seamless-texture-generator",
   "/pbr-texture-generator",
+  "/roblox-texture-generator",
   "/blender-texture-generator",
   "/unreal-engine-texture-generator",
   "/unity-texture-generator",
