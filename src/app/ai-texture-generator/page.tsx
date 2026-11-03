@@ -3,10 +3,10 @@ import { TextureGenerator } from "@/components/texture-generator";
 import { pageMetadata } from "@/lib/seo";
 
 export const metadata: Metadata = pageMetadata({
-  title: "AI Texture Generator - Free Seamless PBR Texture Maker",
+  title: "AI Texture Generator - Free Seamless PBR",
   description:
-    "Free AI texture generator. Create seamless, tileable PBR textures from text prompts. Exports albedo, normal, roughness, AO and height maps. Runs in your browser - no upload, no watermark.",
-  path: "/tools/ai-texture-generator",
+    "Free AI texture generator. Turn a prompt into seamless, tileable PBR textures with albedo, normal, roughness and AO maps. Runs in your browser - no watermark.",
+  path: "/ai-texture-generator",
   keywords: [
     "ai texture generator",
     "text to texture",
@@ -16,9 +16,9 @@ export const metadata: Metadata = pageMetadata({
     "tileable texture maker",
     "ai material generator",
   ],
-  ogTitle: "AI Texture Generator - Free Seamless PBR Textures",
+  ogTitle: "AI Texture Generator - Free Seamless PBR",
   ogDescription:
-    "Turn a prompt into seamless, tileable PBR textures. 4 variants + full map pack, generated entirely in your browser.",
+    "Free AI texture generator. Turn a prompt into seamless, tileable PBR textures with albedo, normal, roughness and AO maps. Runs in your browser - no watermark.",
 });
 
 const FAQ = [
@@ -55,7 +55,7 @@ export default function TextureGeneratorPage() {
     name: "AI Texture Generator",
     applicationCategory: "DesignApplication",
     operatingSystem: "Any",
-    url: "https://www.aitexture.app/tools/ai-texture-generator",
+    url: "https://www.aitexture.app/ai-texture-generator",
     description:
       "Browser-based AI texture generator producing seamless tileable PBR texture packs from text prompts.",
     offers: { "@type": "Offer", price: "0", priceCurrency: "USD" },
@@ -97,7 +97,7 @@ export default function TextureGeneratorPage() {
               </li>
               <li aria-hidden="true">/</li>
               <li>
-                <a href="/tools/ai-texture-generator" className="hover:text-azure-600">
+                <a href="/ai-texture-generator" className="hover:text-azure-600">
                   Tools
                 </a>
               </li>

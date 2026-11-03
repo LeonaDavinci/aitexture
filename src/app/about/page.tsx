@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { pageMetadata } from "@/lib/seo";
+import { breadcrumbJsonLd, pageMetadata } from "@/lib/seo";
 
 export const metadata: Metadata = pageMetadata({
-  title: "About AI Texture - Browser-Based Seamless Texture Engine",
+  title: "About AI Texture - Seamless PBR Texture Engine",
   description:
     "AI Texture is a free, browser-based seamless PBR texture generator built on periodic noise. No uploads, no accounts, no watermark - by design.",
   path: "/about",
@@ -11,7 +11,33 @@ export const metadata: Metadata = pageMetadata({
 });
 
 export default function AboutPage() {
+  const jsonLd = [
+    {
+      "@context": "https://schema.org",
+      "@type": "AboutPage",
+      name: "About AI Texture",
+      url: "https://www.aitexture.app/about",
+      description:
+        "AI Texture is a free, browser-based seamless PBR texture generator built on periodic noise.",
+    },
+    {
+      "@context": "https://schema.org",
+      "@type": "Organization",
+      name: "AI Texture",
+      url: "https://www.aitexture.app",
+      logo: "https://www.aitexture.app/icon.svg",
+    },
+    breadcrumbJsonLd([
+      { name: "Home", path: "/" },
+      { name: "About", path: "/about" },
+    ]),
+  ];
+
   return (
+    <>
+      {jsonLd.map((d, i) => (
+        <script key={i} type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(d) }} />
+      ))}
     <section className="mx-auto max-w-3xl px-4 py-16 sm:px-6 lg:px-8">
       <h1 className="text-balance font-display text-4xl font-bold leading-[1.1] tracking-tight text-ink-900 sm:text-5xl">
         About AI Texture
@@ -68,12 +94,13 @@ export default function AboutPage() {
           The generator is free, needs no account and works offline once loaded.
         </p>
         <Link
-          href="/tools/ai-texture-generator"
+          href="/ai-texture-generator"
           className="mt-4 inline-flex rounded-xl bg-ink-900 px-5 py-2.5 text-sm font-bold text-white transition-colors hover:bg-ink-700"
         >
           Open the generator
         </Link>
       </div>
     </section>
+    </>
   );
 }

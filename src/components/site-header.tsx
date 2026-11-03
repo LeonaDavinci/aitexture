@@ -1,9 +1,9 @@
 import Link from "next/link";
 
 const NAV = [
-  { href: "/tools/ai-texture-generator", label: "Texture Generator" },
-  { href: "/tools/seamless-texture-generator", label: "Seamless Tiles" },
-  { href: "/tools/pbr-texture-generator", label: "PBR Maps" },
+  { href: "/ai-texture-generator", label: "Texture Generator" },
+  { href: "/seamless-texture-generator", label: "Seamless Tiles" },
+  { href: "/pbr-texture-generator", label: "PBR Maps" },
   { href: "/guides", label: "Guides" },
   { href: "/pricing", label: "Pricing" },
 ];
@@ -35,13 +35,13 @@ export function SiteHeader() {
 
         <div className="ml-auto flex items-center gap-2">
           <Link
-            href="/tools/ai-texture-generator"
+            href="/ai-texture-generator"
             className="btn-primary hidden rounded-xl px-4 py-2.5 text-sm font-semibold sm:inline-flex"
           >
             Start Generating
           </Link>
           <Link
-            href="/tools/ai-texture-generator"
+            href="/ai-texture-generator"
             className="rounded-xl border border-ink-200 px-3 py-2.5 text-sm font-semibold text-ink-700 sm:hidden"
           >
             Try it

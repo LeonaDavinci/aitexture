@@ -1,23 +1,68 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { pageMetadata } from "@/lib/seo";
+import { breadcrumbJsonLd, faqJsonLd, pageMetadata, softwareAppJsonLd } from "@/lib/seo";
 
 export const metadata: Metadata = pageMetadata({
-  title: "Photo to Texture - Turn Any Photo Into a Seamless PBR Material",
+  title: "Photo to Texture - Seamless PBR Maps",
   description:
-    "Convert a photo of a real-world surface into a tileable PBR texture with matching normal, roughness, AO and height maps. Free, in-browser, no upload.",
-  path: "/tools/photo-to-texture",
+    "Convert a photo of a real surface into a tileable PBR texture with matching normal, roughness, AO and height maps. Free, in-browser, no upload.",
+  path: "/photo-to-texture",
   keywords: [
     "photo to texture",
+    "image to texture ai",
     "image to seamless texture",
     "photo to pbr material",
     "texture from photo",
   ],
 });
 
+const FAQ = [
+  {
+    q: "How will the photo to texture tool work?",
+    a: "The pipeline mirrors the prompt generator: detect the dominant lighting gradient and flatten it, mirror the edges so the tile matches itself, extract a height field from luminance, and derive the normal, roughness and AO maps from that height field.",
+  },
+  {
+    q: "What kind of photo works best?",
+    a: "Shoot straight on, perpendicular to the surface, with the material filling the frame. Avoid harsh directional shadows and strong vignetting - the flatter the lighting, the less the tool has to correct.",
+  },
+  {
+    q: "Will the result tile seamlessly?",
+    a: "Yes. Edge mirroring produces a border that matches itself by construction, which is the same guarantee the prompt-based generator gives.",
+  },
+  {
+    q: "Can I use the resulting texture commercially?",
+    a: "Yes, with the same commercial license as every other texture - games, client renders, advertising and products, no attribution.",
+  },
+];
+
 export default function PhotoToTexturePage() {
+  const jsonLd = [
+    softwareAppJsonLd({
+      name: "Photo to Texture - AI Texture",
+      description:
+        "Convert photographs of real surfaces into seamless, tileable PBR texture packs with matched normal, roughness, AO and height maps.",
+      path: "/photo-to-texture",
+      features: [
+        "Edge-mirrored seamless output",
+        "Low-frequency lighting removal",
+        "Albedo, normal, roughness, AO, height maps",
+        "Runs locally in browser",
+        "Commercial license",
+      ],
+    }),
+    faqJsonLd(FAQ),
+    breadcrumbJsonLd([
+      { name: "Home", path: "/" },
+      { name: "Photo to Texture", path: "/photo-to-texture" },
+    ]),
+  ];
+
   return (
     <>
+      {jsonLd.map((d, i) => (
+        <script key={i} type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(d) }} />
+      ))}
+
       <section className="border-b border-ink-200 bg-gradient-to-b from-ink-50 to-white">
         <div className="mx-auto max-w-5xl px-4 py-14 sm:px-6 lg:px-8">
           <nav aria-label="Breadcrumb" className="text-xs font-medium text-ink-500">
@@ -29,7 +74,7 @@ export default function PhotoToTexturePage() {
               </li>
               <li aria-hidden="true">/</li>
               <li>
-                <Link href="/tools/ai-texture-generator" className="hover:text-azure-600">
+                <Link href="/ai-texture-generator" className="hover:text-azure-600">
                   Tools
                 </Link>
               </li>
@@ -62,7 +107,7 @@ export default function PhotoToTexturePage() {
             It is being wired into the same editor now.
           </p>
           <Link
-            href="/tools/ai-texture-generator"
+            href="/ai-texture-generator"
             className="mt-6 inline-flex rounded-xl bg-ink-900 px-6 py-3 text-sm font-bold text-white transition-colors hover:bg-ink-700"
           >
             Use the prompt generator instead
@@ -87,6 +132,29 @@ export default function PhotoToTexturePage() {
             </li>
           ))}
         </ol>
+
+        <h2 className="mt-12 font-display text-2xl font-bold tracking-tight text-ink-900">
+          Photo to texture FAQ
+        </h2>
+        <div className="mt-6 space-y-3">
+          {FAQ.map((f) => (
+            <details
+              key={f.q}
+              className="surface-card group px-5 py-4 [&_summary::-webkit-details-marker]:hidden"
+            >
+              <summary className="flex cursor-pointer items-center justify-between gap-4 font-display text-base font-bold text-ink-900">
+                {f.q}
+                <span
+                  className="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-ink-100 text-ink-700 transition-transform group-open:rotate-45"
+                  aria-hidden="true"
+                >
+                  +
+                </span>
+              </summary>
+              <p className="mt-3 text-sm leading-relaxed text-ink-600">{f.a}</p>
+            </details>
+          ))}
+        </div>
       </section>
     </>
   );

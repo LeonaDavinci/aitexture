@@ -1,10 +1,10 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { pageMetadata } from "@/lib/seo";
+import { breadcrumbJsonLd, pageMetadata } from "@/lib/seo";
 import { GUIDES } from "@/lib/guides-data";
 
 export const metadata: Metadata = pageMetadata({
-  title: "Texture Guides - Tileable Textures, PBR Workflows and Engine Setup",
+  title: "Texture Guides for Game Dev and 3D Artists",
   description:
     "Practical guides on tileable textures, seamless surfaces, PBR map channels and texture setup for Unity, Unreal Engine, Godot and Blender.",
   path: "/guides",
@@ -12,8 +12,27 @@ export const metadata: Metadata = pageMetadata({
 });
 
 export default function GuidesPage() {
+  const jsonLd = [
+    {
+      "@context": "https://schema.org",
+      "@type": "CollectionPage",
+      name: "Texture Guides",
+      url: "https://www.aitexture.app/guides",
+      description:
+        "Practical guides on tileable textures, PBR workflows and texture setup for Unity, Unreal Engine, Godot and Blender.",
+    },
+    breadcrumbJsonLd([
+      { name: "Home", path: "/" },
+      { name: "Guides", path: "/guides" },
+    ]),
+  ];
+
   return (
     <>
+      {jsonLd.map((d, i) => (
+        <script key={i} type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(d) }} />
+      ))}
+
       <section className="border-b border-ink-200 bg-gradient-to-b from-azure-50 to-white">
         <div className="mx-auto max-w-5xl px-4 py-14 sm:px-6 lg:px-8">
           <h1 className="text-balance font-display text-4xl font-bold leading-[1.1] tracking-tight text-ink-900 sm:text-5xl">

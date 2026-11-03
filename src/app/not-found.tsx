@@ -19,7 +19,7 @@ export default function NotFound() {
           Back home
         </Link>
         <Link
-          href="/tools/ai-texture-generator"
+          href="/ai-texture-generator"
           className="btn-primary rounded-xl px-5 py-3 text-sm font-bold"
         >
           Open the generator

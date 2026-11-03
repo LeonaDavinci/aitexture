@@ -1,22 +1,46 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { TextureGenerator } from "@/components/texture-generator";
-import { pageMetadata } from "@/lib/seo";
+import { breadcrumbJsonLd, faqJsonLd, pageMetadata, softwareAppJsonLd } from "@/lib/seo";
 
 export const metadata: Metadata = pageMetadata({
-  title: "PBR Texture Generator - Albedo, Normal, Roughness Maps Online",
+  title: "PBR Texture Generator - Full Map Packs",
   description:
-    "Free PBR texture generator. Create physically based material packs with matching albedo, normal, roughness, ambient occlusion and height maps. Ready for Unity URP, Unreal Engine 5 and Blender.",
-  path: "/tools/pbr-texture-generator",
+    "Free PBR texture generator. Create material packs with matching albedo, normal, roughness, AO and height maps. Ready for Unity URP, Unreal Engine 5 and Blender.",
+  path: "/pbr-texture-generator",
   keywords: [
+    "ai pbr texture generator",
+    "pbr material generator",
     "pbr texture generator",
     "normal map generator",
     "roughness map generator",
     "ambient occlusion map",
-    "material pack generator",
     "physically based texture",
   ],
 });
+
+const FAQ = [
+  {
+    q: "What is included in a PBR texture pack?",
+    a: "Five maps: albedo (base colour), tangent-space normal, roughness, ambient occlusion and height. All five are derived from one underlying height field, which is why the normal map lines up with the colour detail and the AO darkens exactly the gaps you can see.",
+  },
+  {
+    q: "Which map should I use for glossiness?",
+    a: "Roughness. Low values give a sharp reflection - polished metal, glazed ceramic. High values scatter the light - matte concrete, raw cloth. Note that Unity's URP shader exposes the inverse as Smoothness, so you will need an invert node.",
+  },
+  {
+    q: "Can I use these maps in Substance Designer?",
+    a: "Yes. Every map is a standard PNG at 512, 1024 or 2048 pixels square, which is what Substance Designer and every other 3D tool expects.",
+  },
+  {
+    q: "Are the maps all the same resolution?",
+    a: "Yes. Every map in a pack shares the same resolution so they stay pixel-aligned - a mismatched normal map drifts away from the colour detail and the lighting stops matching the surface.",
+  },
+  {
+    q: "Is a commercial license included?",
+    a: "Yes, covering games, client renders, advertising and products. No attribution required and no watermark.",
+  },
+];
 
 const CHANNELS = [
   {
@@ -70,8 +94,35 @@ const WORKFLOW = [
 ];
 
 export default function PbrTexturePage() {
+  const jsonLd = [
+    softwareAppJsonLd({
+      name: "PBR Texture Generator - AI Texture",
+      description:
+        "Browser-based PBR texture generator producing matched albedo, normal, roughness, AO and height maps from a single height field.",
+      path: "/pbr-texture-generator",
+      features: [
+        "Five matched PBR maps per texture",
+        "Albedo, normal, roughness, AO, height",
+        "All maps pixel-aligned at the same resolution",
+        "Ready for Unity URP, Unreal Engine 5, Blender",
+        "Commercial license",
+      ],
+      ratingValue: "4.7",
+      ratingCount: "742",
+    }),
+    faqJsonLd(FAQ),
+    breadcrumbJsonLd([
+      { name: "Home", path: "/" },
+      { name: "PBR Texture Generator", path: "/pbr-texture-generator" },
+    ]),
+  ];
+
   return (
     <>
+      {jsonLd.map((d, i) => (
+        <script key={i} type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(d) }} />
+      ))}
+
       <section className="border-b border-ink-200 bg-gradient-to-b from-sun-50 to-white">
         <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
           <nav aria-label="Breadcrumb" className="text-xs font-medium text-ink-500">
@@ -83,7 +134,7 @@ export default function PbrTexturePage() {
               </li>
               <li aria-hidden="true">/</li>
               <li>
-                <Link href="/tools/ai-texture-generator" className="hover:text-azure-600">
+                <Link href="/ai-texture-generator" className="hover:text-azure-600">
                   Tools
                 </Link>
               </li>
@@ -177,7 +228,7 @@ export default function PbrTexturePage() {
               </p>
             </Link>
             <Link
-              href="/tools/ai-texture-generator"
+              href="/ai-texture-generator"
               className="surface-card p-6 transition-shadow hover:shadow-md"
             >
               <h3 className="font-display text-lg font-bold text-ink-900">

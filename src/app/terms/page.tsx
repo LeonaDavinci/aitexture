@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { pageMetadata } from "@/lib/seo";
+import { breadcrumbJsonLd, pageMetadata } from "@/lib/seo";
 
 export const metadata: Metadata = pageMetadata({
   title: "Terms of Service - AI Texture",
@@ -9,8 +9,29 @@ export const metadata: Metadata = pageMetadata({
   keywords: ["ai texture terms of service"],
 });
 
+const SCHEMA = {
+  "@context": "https://schema.org",
+  "@type": "TermsOfService",
+  name: "Terms of Service - AI Texture",
+  url: "https://www.aitexture.app/terms",
+  inLanguage: "en",
+};
+
 export default function TermsPage() {
   return (
+    <>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(SCHEMA) }} />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(
+            breadcrumbJsonLd([
+              { name: "Home", path: "/" },
+              { name: "Terms of Service", path: "/terms" },
+            ]),
+          ),
+        }}
+      />
     <section className="mx-auto max-w-3xl px-4 py-16 sm:px-6 lg:px-8">
       <h1 className="text-balance font-display text-4xl font-bold tracking-tight text-ink-900">
         Terms of Service
@@ -88,5 +109,6 @@ export default function TermsPage() {
         </section>
       </div>
     </section>
+    </>
   );
 }

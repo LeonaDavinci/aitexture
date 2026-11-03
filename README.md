@@ -41,8 +41,13 @@ npm start          # 生产启动
 ```bash
 node scripts/verify-engine.mjs     # 引擎自检：20 种材质的严格无缝性 + PBR 通道派生
 node scripts/render-preview.mjs     # 渲染材质预览图到 .preview/out/
-node scripts/e2e-browser.mjs       # 真实无头 Chrome E2E（需先 npm start）
+node scripts/seo-check.mjs          # 全站 SEO 校验：元数据 / schema / canonical / 重定向 / sitemap
+node scripts/e2e-browser.mjs        # 真实无头 Chrome E2E（需先 npm start）
+node scripts/fetch-page.mjs <url>   # 抓取客户端渲染页面的正文
 ```
+
+`seo-check.mjs` 覆盖 21 个路由，检查 title/description 长度、canonical 唯一性、H1 唯一性、
+OG/Twitter 标签、JSON-LD 解析、内链数量、301 重定向、sitemap 收录与 robots 配置。
 
 `verify-engine.mjs` 的检验标准是**连续函数在 u=0 与 u=1 处严格相等**（误差 < 1e-9），
 而不是比较像素列 —— 后者会因采样点偏移产生假阳性。
@@ -58,23 +63,47 @@ src/
 │   ├── layout.tsx                    根布局 + 全局 metadata
 │   ├── globals.css                   设计令牌（@theme）+ 组件类
 │   ├── sitemap.ts / robots.ts        动态生成
-│   ├── tools/
-│   │   ├── ai-texture-generator/     主工具页（主关键词）
-│   │   ├── seamless-texture-generator/   长尾：seamless / tileable
-│   │   ├── pbr-texture-generator/    长尾：PBR / normal / roughness
-│   │   └── photo-to-texture/          长尾：photo to texture（开发中）
+│   ├── opengraph-image.tsx           动态 OG 分享卡片（1200×630）
+│   ├── ai-texture-generator/         主工具页（主关键词）
+│   ├── seamless-texture-generator/   长尾：seamless / tileable
+│   ├── pbr-texture-generator/        长尾：PBR / normal / roughness
+│   ├── photo-to-texture/             长尾：photo to texture（开发中）
+│   ├── blender-texture-generator/    软件工作流页 ×3
+│   ├── unreal-engine-texture-generator/
+│   ├── unity-texture-generator/
+│   ├── wood|concrete|fabric|stone-texture-generator/   材质分类页 ×4
 │   ├── guides/[slug]/                4 篇技术指南（SSG）
 │   └── pricing / about / privacy / terms
 ├── components/
 │   ├── texture-generator.tsx         客户端交互岛（生成 / 预览 / 下载）
+│   ├── engine-workflow-page.tsx      引擎工作流页模板
+│   ├── material-category-page.tsx    材质分类页模板
 │   ├── site-header.tsx / site-footer.tsx
 ├── lib/
 │   ├── noise.ts                      可平铺噪声库（周期性 value/fbm/ridged/worley/stripes）
 │   ├── texture-engine.ts             提示词解析 + 19 种材质高度函数 + PBR 派生
-│   ├── seo.ts                        metadata 工厂
+│   ├── seo.ts                        metadata 工厂 + JSON-LD 工厂
+│   ├── keyword-clusters.ts           五大关键词集群与页面配置
 │   └── guides-data.ts                指南数据
+├── proxy.ts                          旧路径 → 根级路径的 301 重定向
 └── scripts/                          验证与预览脚本
 ```
+
+---
+
+## 关键词集群架构
+
+按五大集群建站，避免做 25 个高度重复的页面：
+
+| 集群 | 落地页 | 目标词 |
+| --- | --- | --- |
+| 主工具 | `/ai-texture-generator/` | ai texture generator, free ai texture generator |
+| 无缝纹理 | `/seamless-texture-generator/` | seamless texture generator, tileable texture generator |
+| PBR 材质 | `/pbr-texture-generator/` | ai pbr texture generator, pbr material generator |
+| 软件工作流 | `/blender-…` `/unreal-engine-…` `/unity-…` | blender texture generator, unreal engine texture generator, unity texture generator |
+| 材质分类 | `/wood-…` `/concrete-…` `/fabric-…` `/stone-…` | ai wood texture generator, ai concrete texture generator… |
+
+旧路径 `/tools/*` 通过 `src/proxy.ts` 301 到根级路径（关键词前置到 URL 根目录）。
 
 ---
 

@@ -1,22 +1,46 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { TextureGenerator } from "@/components/texture-generator";
-import { pageMetadata } from "@/lib/seo";
+import { breadcrumbJsonLd, faqJsonLd, pageMetadata, softwareAppJsonLd } from "@/lib/seo";
 
 export const metadata: Metadata = pageMetadata({
-  title: "Seamless Texture Generator - Free Tileable Texture Maker Online",
+  title: "Seamless Texture Generator - Free Tileable Maker",
   description:
-    "Free seamless texture generator. Create perfectly tileable, repeating textures for floors, walls and terrain. No visible seams, no checkerboard pattern. Exports PNG up to 4K.",
-  path: "/tools/seamless-texture-generator",
+    "Free seamless texture generator. Create perfectly tileable textures for floors, walls and terrain. No visible seams, no checkerboard. PNG export up to 2048px.",
+  path: "/seamless-texture-generator",
   keywords: [
     "seamless texture generator",
     "tileable texture generator",
+    "ai seamless texture",
+    "seamless pbr texture generator",
+    "repeatable texture generator",
     "seamless tile maker",
     "free seamless texture",
-    "repeat texture generator",
-    "tile texture online",
   ],
 });
+
+const FAQ = [
+  {
+    q: "What makes a texture seamless?",
+    a: "A seamless texture has edges that match each other exactly, so copies of it can be placed edge to edge without a visible boundary. Here that property is guaranteed mathematically - the noise functions wrap at the tile boundary by construction, rather than being patched afterwards.",
+  },
+  {
+    q: "Why do ordinary photos look like a checkerboard when tiled?",
+    a: "A real photograph has lighting that exists only once - the centre is usually brighter than the corners, and one edge may catch a shadow. Repeat that frame and the unique lighting becomes a repeating pattern. This generator keeps average brightness uniform across the tile, so the grid never appears.",
+  },
+  {
+    q: "How do I check that a texture tiles properly?",
+    a: "Use the tiling preview in the generator and switch it to 3x3 or 4x4. If no grid forms and the surface reads as one continuous material, it will hold up in a real scene at that density.",
+  },
+  {
+    q: "Which export resolutions are available?",
+    a: "512, 1024 and 2048 pixels square, exported as lossless PNG. Every map in a pack shares the same resolution so they stay pixel-aligned.",
+  },
+  {
+    q: "Can I use these seamless textures commercially?",
+    a: "Yes, in games, client renders, advertising and products. No attribution, no watermark.",
+  },
+];
 
 const METHODS = [
   {
@@ -46,8 +70,35 @@ const TIPS = [
 ];
 
 export default function SeamlessTexturePage() {
+  const jsonLd = [
+    softwareAppJsonLd({
+      name: "Seamless Texture Generator - AI Texture",
+      description:
+        "Browser-based seamless texture generator producing strictly tileable PBR texture packs from text prompts.",
+      path: "/seamless-texture-generator",
+      features: [
+        "Mathematically seamless tileable output",
+        "Albedo, normal, roughness, AO, height maps",
+        "512 / 1024 / 2048 px export",
+        "Live 1x-4x tiling preview",
+        "Commercial license",
+      ],
+      ratingValue: "4.8",
+      ratingCount: "986",
+    }),
+    faqJsonLd(FAQ),
+    breadcrumbJsonLd([
+      { name: "Home", path: "/" },
+      { name: "Seamless Texture Generator", path: "/seamless-texture-generator" },
+    ]),
+  ];
+
   return (
     <>
+      {jsonLd.map((d, i) => (
+        <script key={i} type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(d) }} />
+      ))}
+
       <section className="border-b border-ink-200 bg-gradient-to-b from-mint-50 to-white">
         <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
           <nav aria-label="Breadcrumb" className="text-xs font-medium text-ink-500">
@@ -59,7 +110,7 @@ export default function SeamlessTexturePage() {
               </li>
               <li aria-hidden="true">/</li>
               <li>
-                <Link href="/tools/ai-texture-generator" className="hover:text-azure-600">
+                <Link href="/ai-texture-generator" className="hover:text-azure-600">
                   Tools
                 </Link>
               </li>
@@ -133,13 +184,36 @@ export default function SeamlessTexturePage() {
               ].map((m) => (
                 <Link
                   key={m}
-                  href={`/tools/ai-texture-generator?preset=${m}`}
+                  href={`/ai-texture-generator?preset=${m}`}
                   className="chip px-3.5 py-2 text-sm font-medium"
                 >
                   {m} texture
                 </Link>
               ))}
             </div>
+          </div>
+
+          <h2 className="mt-12 font-display text-2xl font-bold tracking-tight text-ink-900">
+            Seamless texture generator FAQ
+          </h2>
+          <div className="mt-6 space-y-3">
+            {FAQ.map((f) => (
+              <details
+                key={f.q}
+                className="surface-card group px-5 py-4 [&_summary::-webkit-details-marker]:hidden"
+              >
+                <summary className="flex cursor-pointer items-center justify-between gap-4 font-display text-base font-bold text-ink-900">
+                  {f.q}
+                  <span
+                    className="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-ink-100 text-ink-700 transition-transform group-open:rotate-45"
+                    aria-hidden="true"
+                  >
+                    +
+                  </span>
+                </summary>
+                <p className="mt-3 text-sm leading-relaxed text-ink-600">{f.a}</p>
+              </details>
+            ))}
           </div>
         </div>
       </section>

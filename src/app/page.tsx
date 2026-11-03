@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { TextureGenerator } from "@/components/texture-generator";
-import { SITE_URL } from "@/lib/seo";
+import { SITE_URL, breadcrumbJsonLd, faqJsonLd, softwareAppJsonLd } from "@/lib/seo";
+import { ENGINE_WORKFLOWS, MATERIAL_PAGES } from "@/lib/keyword-clusters";
 
 const FEATURES = [
   {
@@ -15,7 +16,7 @@ const FEATURES = [
   },
   {
     title: "Runs 100% in-browser",
-    body: "Zero uploads, zero queues, zero server cost. Your prompts and images never leave the device - works on a plane with Wi-Fi off.",
+    body: "Zero uploads, zero queues, zero server cost. Your prompts never leave the device - works on a plane with Wi-Fi off.",
     accent: "bg-mint-500",
   },
   {
@@ -53,25 +54,59 @@ const USE_CASES = [
     tag: "Game Development",
     title: "Tileable textures for Unity and Unreal",
     body: "Ground, wall and terrain materials built to survive heavy UV repeat. Import the normal map into a URP or Lumen material and you are done.",
-    href: "/guides/texture-for-unity-unreal-blender",
+    href: "/unity-texture-generator",
   },
   {
     tag: "ArchViz",
     title: "Architectural surface materials",
     body: "Concrete, plaster, terrazzo and brick that tile across a full facade or floor plan without the grid pattern revealing itself.",
-    href: "/tools/seamless-texture-generator",
+    href: "/concrete-texture-generator",
   },
   {
     tag: "Product Design",
     title: "Packaging and surface design",
     body: "Leather, fabric weave, kraft paper and carbon fibre for mockups, packaging renders and industrial design presentations.",
-    href: "/tools/pbr-texture-generator",
+    href: "/fabric-texture-generator",
   },
   {
-    tag: "Indie Production",
+    tag: "3D Craft",
     title: "Ship assets without an artist",
     body: "Solo developers and tiny studios can cover prototyping and production surfaces without commissioning a texture artist.",
-    href: "/tools/ai-texture-generator",
+    href: "/ai-texture-generator",
+  },
+];
+
+/** 与通用 AI 图像工具 / 竞品的差异化对比（豆包调研建议：差异化要落到可感知体验） */
+const COMPARISON = [
+  {
+    feature: "Tiles without visible seams",
+    aitexture: "Mathematically exact",
+    general: "Rarely tiles",
+    desktop: "Manual offset + clone stamp",
+  },
+  {
+    feature: "PBR map set included",
+    aitexture: "5 maps, one click",
+    general: "No",
+    desktop: "Manual per map",
+  },
+  {
+    feature: "Upload required",
+    aitexture: "No",
+    general: "Usually yes",
+    desktop: "No",
+  },
+  {
+    feature: "Watermark on free tier",
+    aitexture: "None",
+    general: "Common",
+    desktop: "None",
+  },
+  {
+    feature: "Cost to start",
+    aitexture: "Free",
+    general: "Subscription",
+    desktop: "Free",
   },
 ];
 
@@ -105,6 +140,10 @@ const FAQ = [
     a: "Yes. Each generation exports albedo, tangent-space normal, roughness, ambient occlusion and height maps derived from the same underlying height field, so they stay consistent with each other.",
   },
   {
+    q: "Which 3D software do the textures work with?",
+    a: "Unity URP and HDRP, Unreal Engine 4 and 5, Godot, Blender, Maya, 3ds Max, Substance Designer and every WebGL pipeline using repeat wrapping.",
+  },
+  {
     q: "Can I use it on mobile?",
     a: "The generator works on mobile browsers. For the smoothest experience on 2048px exports, a desktop browser is recommended.",
   },
@@ -119,40 +158,38 @@ export default function HomePage() {
         "@id": `${SITE_URL}/#website`,
         url: SITE_URL,
         name: "AI Texture",
+        description:
+          "Free AI texture generator producing seamless, tileable PBR textures in the browser.",
         potentialAction: {
           "@type": "SearchAction",
-          target: `${SITE_URL}/tools/ai-texture-generator?q={search_term_string}`,
+          target: `${SITE_URL}/ai-texture-generator?q={search_term_string}`,
           "query-input": "required name=search_term_string",
         },
       },
-      {
-        "@type": "SoftwareApplication",
+      softwareAppJsonLd({
         name: "AI Texture Generator",
-        applicationCategory: "DesignApplication",
-        operatingSystem: "Any",
-        url: `${SITE_URL}/tools/ai-texture-generator`,
-        offers: { "@type": "Offer", price: "0", priceCurrency: "USD" },
-        featureList: [
+        description:
+          "Free browser-based AI texture generator producing seamless tileable PBR texture packs from text prompts.",
+        path: "/ai-texture-generator",
+        features: [
           "Seamless tileable textures",
           "PBR map export",
           "Runs in browser",
           "No watermark",
           "Commercial license",
         ],
-        aggregateRating: {
-          "@type": "AggregateRating",
-          ratingValue: "4.8",
-          ratingCount: "1284",
-        },
-      },
+        ratingValue: "4.8",
+        ratingCount: "1284",
+      }),
       {
-        "@type": "FAQPage",
-        mainEntity: FAQ.map((f) => ({
-          "@type": "Question",
-          name: f.q,
-          acceptedAnswer: { "@type": "Answer", text: f.a },
-        })),
+        "@type": "Organization",
+        "@id": `${SITE_URL}/#organization`,
+        name: "AI Texture",
+        url: SITE_URL,
+        logo: `${SITE_URL}/icon.svg`,
       },
+      faqJsonLd(FAQ),
+      breadcrumbJsonLd([{ name: "Home", path: "/" }]),
     ],
   };
 
@@ -174,7 +211,7 @@ export default function HomePage() {
             </span>
 
             <h1 className="mt-6 text-balance font-display text-4xl font-bold leading-[1.08] tracking-tight text-ink-900 sm:text-5xl lg:text-6xl">
-              Free AI Texture Generator for Seamless PBR Textures
+              The simplest online seamless PBR texture generator
             </h1>
 
             <p className="mx-auto mt-5 max-w-2xl text-pretty text-base leading-relaxed text-ink-600 sm:text-lg">
@@ -185,13 +222,13 @@ export default function HomePage() {
 
             <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
               <Link
-                href="/tools/ai-texture-generator"
+                href="/ai-texture-generator"
                 className="btn-primary w-full rounded-xl px-7 py-3.5 text-base font-bold sm:w-auto"
               >
                 Generate textures free
               </Link>
               <Link
-                href="/tools/seamless-texture-generator"
+                href="/seamless-texture-generator"
                 className="btn-secondary w-full rounded-xl px-7 py-3.5 text-base font-bold sm:w-auto"
               >
                 Seamless tile maker
@@ -239,10 +276,7 @@ export default function HomePage() {
 
           <div className="mt-10 grid gap-5 sm:grid-cols-2">
             {FEATURES.map((f) => (
-              <article
-                key={f.title}
-                className="surface-card p-6 transition-shadow hover:shadow-md"
-              >
+              <article key={f.title} className="surface-card p-6 transition-shadow hover:shadow-md">
                 <span className={`block h-1.5 w-12 rounded-full ${f.accent}`} aria-hidden="true" />
                 <h3 className="mt-4 font-display text-lg font-bold text-ink-900">{f.title}</h3>
                 <p className="mt-2 text-sm leading-relaxed text-ink-600">{f.body}</p>
@@ -252,90 +286,240 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* 流程 */}
-      <section className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8" aria-labelledby="how-heading">
+      {/* 对比表 —— 差异化定位 */}
+      <section className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8" aria-labelledby="compare-heading">
         <div className="max-w-2xl">
           <h2
-            id="how-heading"
+            id="compare-heading"
             className="text-balance font-display text-3xl font-bold tracking-tight text-ink-900 sm:text-4xl"
           >
-            How the AI texture generator works
+            Why this instead of a general AI image tool
           </h2>
           <p className="mt-4 text-base leading-relaxed text-ink-600">
-            From prompt to shippable material in four steps. No Photoshop, no offset filter, no
-            clone stamping.
+            General image models and desktop tools both solve a different problem. The gap is in
+            repeatability and workflow fit, not in image quality.
           </p>
         </div>
 
-        <ol className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
-          {STEPS.map((s) => (
-            <li key={s.n} className="surface-card p-6">
-              <span className="font-mono text-sm font-bold text-sun-600">{s.n}</span>
-              <h3 className="mt-3 font-display text-lg font-bold text-ink-900">{s.title}</h3>
-              <p className="mt-2 text-sm leading-relaxed text-ink-600">{s.body}</p>
-            </li>
-          ))}
-        </ol>
+        <div className="mt-10 overflow-x-auto rounded-2xl border border-ink-200 bg-white">
+          <table className="w-full min-w-[640px] text-left text-sm">
+            <thead className="bg-ink-900 text-white">
+              <tr>
+                <th scope="col" className="px-5 py-3.5 font-display text-xs uppercase tracking-wider">
+                  Capability
+                </th>
+                <th scope="col" className="px-5 py-3.5 font-display text-xs uppercase tracking-wider">
+                  AI Texture
+                </th>
+                <th scope="col" className="px-5 py-3.5 font-display text-xs uppercase tracking-wider">
+                  General AI image tools
+                </th>
+                <th scope="col" className="px-5 py-3.5 font-display text-xs uppercase tracking-wider">
+                  Desktop DCC tools
+                </th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-ink-200">
+              {COMPARISON.map((row) => (
+                <tr key={row.feature}>
+                  <th scope="row" className="px-5 py-3.5 font-display font-bold text-ink-900">
+                    {row.feature}
+                  </th>
+                  <td className="px-5 py-3.5 font-semibold text-mint-700">{row.aitexture}</td>
+                  <td className="px-5 py-3.5 text-ink-600">{row.general}</td>
+                  <td className="px-5 py-3.5 text-ink-600">{row.desktop}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </section>
 
-      {/* 场景 */}
-      <section className="border-y border-ink-200 bg-ink-50" aria-labelledby="use-heading">
+      {/* 流程 */}
+      <section className="border-y border-ink-200 bg-ink-50" aria-labelledby="how-heading">
         <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
           <div className="max-w-2xl">
             <h2
-              id="use-heading"
+              id="how-heading"
               className="text-balance font-display text-3xl font-bold tracking-tight text-ink-900 sm:text-4xl"
             >
-              Where seamless AI textures get used
+              How the AI texture generator works
             </h2>
+            <p className="mt-4 text-base leading-relaxed text-ink-600">
+              From prompt to shippable material in four steps. No Photoshop, no offset filter, no
+              clone stamping.
+            </p>
           </div>
 
-          <div className="mt-10 grid gap-5 md:grid-cols-2">
-            {USE_CASES.map((u) => (
-              <article key={u.title} className="surface-card p-6">
-                <span className="inline-flex rounded-full bg-azure-100 px-3 py-1 text-xs font-bold uppercase tracking-wide text-azure-700">
-                  {u.tag}
+          <ol className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+            {STEPS.map((s) => (
+              <li key={s.n} className="surface-card p-6">
+                <span className="font-mono text-sm font-bold text-sun-600">{s.n}</span>
+                <h3 className="mt-3 font-display text-lg font-bold text-ink-900">{s.title}</h3>
+                <p className="mt-2 text-sm leading-relaxed text-ink-600">{s.body}</p>
+              </li>
+            ))}
+          </ol>
+        </div>
+      </section>
+
+      {/* 按引擎找 —— 关键词集群 4 */}
+      <section className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8" aria-labelledby="engine-heading">
+        <div className="max-w-2xl">
+          <h2
+            id="engine-heading"
+            className="text-balance font-display text-3xl font-bold tracking-tight text-ink-900 sm:text-4xl"
+          >
+            Texture generators for your 3D software
+          </h2>
+          <p className="mt-4 text-base leading-relaxed text-ink-600">
+            Same engine, different wiring. Each page covers the exact import settings, texture
+            address modes and material graph nodes for that tool.
+          </p>
+        </div>
+
+        <div className="mt-10 grid gap-5 md:grid-cols-3">
+          {ENGINE_WORKFLOWS.map((e) => (
+            <Link
+              key={e.slug}
+              href={`/${e.slug}`}
+              className="surface-card p-6 transition-shadow hover:shadow-md"
+            >
+              <span className="inline-flex rounded-full bg-azure-100 px-3 py-1 text-xs font-bold uppercase tracking-wide text-azure-700">
+                {e.name}
+              </span>
+              <h3 className="mt-4 font-display text-xl font-bold text-ink-900">{e.h1}</h3>
+              <p className="mt-2 text-sm leading-relaxed text-ink-600">
+                Import settings, wrap modes and material wiring for {e.name}.
+              </p>
+              <span className="mt-4 inline-flex items-center gap-1.5 text-sm font-bold text-sun-600">
+                Open guide <span aria-hidden="true">&rarr;</span>
+              </span>
+            </Link>
+          ))}
+        </div>
+      </section>
+
+      {/* 按材质找 —— 关键词集群 5 */}
+      <section className="border-y border-ink-200 bg-ink-50" aria-labelledby="material-heading">
+        <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
+          <div className="max-w-2xl">
+            <h2
+              id="material-heading"
+              className="text-balance font-display text-3xl font-bold tracking-tight text-ink-900 sm:text-4xl"
+            >
+              Texture generators by material
+            </h2>
+            <p className="mt-4 text-base leading-relaxed text-ink-600">
+              19 material models in total. These four have dedicated pages describing what makes
+              each surface convincing.
+            </p>
+          </div>
+
+          <div className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+            {MATERIAL_PAGES.map((m) => (
+              <Link
+                key={m.slug}
+                href={`/${m.slug}`}
+                className="surface-card p-6 transition-shadow hover:shadow-md"
+              >
+                <h3 className="font-display text-lg font-bold text-ink-900">{m.h1}</h3>
+                <p className="mt-2 text-sm leading-relaxed text-ink-600">{m.intro.slice(0, 110)}...</p>
+                <span className="mt-4 inline-flex items-center gap-1.5 text-sm font-bold text-sun-600">
+                  Generate <span aria-hidden="true">&rarr;</span>
                 </span>
-                <h3 className="mt-4 font-display text-xl font-bold text-ink-900">{u.title}</h3>
-                <p className="mt-2 text-sm leading-relaxed text-ink-600">{u.body}</p>
-                <Link
-                  href={u.href}
-                  className="mt-4 inline-flex items-center gap-1.5 text-sm font-bold text-sun-600 hover:text-sun-700"
-                >
-                  Explore workflow <span aria-hidden="true">&rarr;</span>
-                </Link>
-              </article>
+              </Link>
+            ))}
+          </div>
+
+          <div className="mt-8 flex flex-wrap gap-2">
+            {[
+              "brick",
+              "leather",
+              "marble",
+              "metal",
+              "rust",
+              "tile",
+              "asphalt",
+              "sand",
+              "snow",
+              "grass",
+              "mud",
+              "glass",
+              "carbon",
+              "paper",
+              "water",
+            ].map((m) => (
+              <Link
+                key={m}
+                href={`/ai-texture-generator?preset=${m}`}
+                className="chip px-3.5 py-2 text-sm font-medium"
+              >
+                {m}
+              </Link>
             ))}
           </div>
         </div>
       </section>
 
-      {/* FAQ */}
-      <section className="mx-auto max-w-4xl px-4 py-16 sm:px-6 lg:px-8" aria-labelledby="faq-heading">
-        <h2
-          id="faq-heading"
-          className="text-balance text-center font-display text-3xl font-bold tracking-tight text-ink-900 sm:text-4xl"
-        >
-          Frequently asked questions
-        </h2>
-        <div className="mt-10 space-y-3">
-          {FAQ.map((f) => (
-            <details
-              key={f.q}
-              className="surface-card group px-5 py-4 [&_summary::-webkit-details-marker]:hidden"
-            >
-              <summary className="flex cursor-pointer items-center justify-between gap-4 font-display text-base font-bold text-ink-900">
-                {f.q}
-                <span
-                  className="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-ink-100 text-ink-700 transition-transform group-open:rotate-45"
-                  aria-hidden="true"
-                >
-                  +
-                </span>
-              </summary>
-              <p className="mt-3 text-sm leading-relaxed text-ink-600">{f.a}</p>
-            </details>
+      {/* 场景 */}
+      <section className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8" aria-labelledby="use-heading">
+        <div className="max-w-2xl">
+          <h2
+            id="use-heading"
+            className="text-balance font-display text-3xl font-bold tracking-tight text-ink-900 sm:text-4xl"
+          >
+            Where seamless AI textures get used
+          </h2>
+        </div>
+
+        <div className="mt-10 grid gap-5 md:grid-cols-2">
+          {USE_CASES.map((u) => (
+            <article key={u.title} className="surface-card p-6">
+              <span className="inline-flex rounded-full bg-azure-100 px-3 py-1 text-xs font-bold uppercase tracking-wide text-azure-700">
+                {u.tag}
+              </span>
+              <h3 className="mt-4 font-display text-xl font-bold text-ink-900">{u.title}</h3>
+              <p className="mt-2 text-sm leading-relaxed text-ink-600">{u.body}</p>
+              <Link
+                href={u.href}
+                className="mt-4 inline-flex items-center gap-1.5 text-sm font-bold text-sun-600 hover:text-sun-700"
+              >
+                Explore workflow <span aria-hidden="true">&rarr;</span>
+              </Link>
+            </article>
           ))}
+        </div>
+      </section>
+
+      {/* FAQ */}
+      <section className="border-t border-ink-200 bg-ink-50" aria-labelledby="faq-heading">
+        <div className="mx-auto max-w-4xl px-4 py-16 sm:px-6 lg:px-8">
+          <h2
+            id="faq-heading"
+            className="text-balance text-center font-display text-3xl font-bold tracking-tight text-ink-900 sm:text-4xl"
+          >
+            Frequently asked questions
+          </h2>
+          <div className="mt-10 space-y-3">
+            {FAQ.map((f) => (
+              <details
+                key={f.q}
+                className="surface-card group px-5 py-4 [&_summary::-webkit-details-marker]:hidden"
+              >
+                <summary className="flex cursor-pointer items-center justify-between gap-4 font-display text-base font-bold text-ink-900">
+                  {f.q}
+                  <span
+                    className="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-ink-100 text-ink-700 transition-transform group-open:rotate-45"
+                    aria-hidden="true"
+                  >
+                    +
+                  </span>
+                </summary>
+                <p className="mt-3 text-sm leading-relaxed text-ink-600">{f.a}</p>
+              </details>
+            ))}
+          </div>
         </div>
       </section>
 
@@ -350,7 +534,7 @@ export default function HomePage() {
             now.
           </p>
           <Link
-            href="/tools/ai-texture-generator"
+            href="/ai-texture-generator"
             className="mt-8 inline-flex rounded-xl bg-sun-500 px-8 py-4 text-base font-bold text-white transition-colors hover:bg-sun-600"
           >
             Open the texture generator

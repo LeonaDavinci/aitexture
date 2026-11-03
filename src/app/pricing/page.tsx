@@ -1,13 +1,13 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { pageMetadata } from "@/lib/seo";
+import { breadcrumbJsonLd, faqJsonLd, pageMetadata } from "@/lib/seo";
 
 export const metadata: Metadata = pageMetadata({
-  title: "Pricing - Free AI Texture Generator, No Paid Tier Required",
+  title: "Pricing - Free AI Texture Generator",
   description:
     "AI Texture is free: unlimited generations, 2048px exports, full PBR map packs and a commercial license. No subscriptions, no credits, no watermarks.",
   path: "/pricing",
-  keywords: ["ai texture pricing", "free texture generator", "free pbr textures"],
+  keywords: ["ai texture pricing", "free texture generator", "free pbr textures", "texture generator pricing"],
 });
 
 const PLANS = [
@@ -21,12 +21,12 @@ const PLANS = [
       "4 variants per run",
       "512 / 1024 / 2048 px export",
       "Full PBR map pack (normal, roughness, AO, height)",
-      "Seamless tiling preview",
+      "Seamless tiling preview up to 4x4",
       "Commercial use license",
       "No watermark, no signup",
     ],
     cta: "Start generating",
-    href: "/tools/ai-texture-generator",
+    href: "/ai-texture-generator",
   },
   {
     name: "Batch & API",
@@ -36,6 +36,7 @@ const PLANS = [
     features: [
       "Everything in Free",
       "Batch generation pipelines",
+      "Automated export to your asset folder",
       "Team asset libraries",
       "Priority feature requests",
       "Commercial licensing for redistribution",
@@ -45,9 +46,55 @@ const PLANS = [
   },
 ];
 
+const FAQ = [
+  {
+    q: "Why is it free when other tools charge $9-30 a month?",
+    a: "Because generation runs entirely on your own hardware. There is no server-side GPU cost to pass on, so there is nothing to charge for. That is also why your prompts never leave your device.",
+  },
+  {
+    q: "Will the free tier stay free?",
+    a: "Yes. The core tool - full PBR map packs at up to 2048px with a commercial license - stays free permanently. Any future paid tier would only cover things that cost money to run, like batch pipelines.",
+  },
+  {
+    q: "What does the commercial license cover?",
+    a: "Games, client renders, advertising, film, physical products and templates. You may use generated textures in commercial work without attribution. You may not resell the generator itself or redistribute it as a competing service.",
+  },
+  {
+    q: "Do I need an account to download?",
+    a: "No. There is no signup and no login. Generate and download immediately.",
+  },
+];
+
 export default function PricingPage() {
+  const jsonLd = [
+    {
+      "@context": "https://schema.org",
+      "@type": "Product",
+      name: "AI Texture",
+      description:
+        "Free browser-based seamless PBR texture generator with unlimited generations, 2048px exports and a commercial license.",
+      brand: { "@type": "Brand", name: "AI Texture" },
+      offers: {
+        "@type": "Offer",
+        price: "0",
+        priceCurrency: "USD",
+        availability: "https://schema.org/InStock",
+        description: "Unlimited generations, full PBR map packs, commercial license",
+      },
+    },
+    faqJsonLd(FAQ),
+    breadcrumbJsonLd([
+      { name: "Home", path: "/" },
+      { name: "Pricing", path: "/pricing" },
+    ]),
+  ];
+
   return (
     <>
+      {jsonLd.map((d, i) => (
+        <script key={i} type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(d) }} />
+      ))}
+
       <section className="border-b border-ink-200 bg-gradient-to-b from-ink-50 to-white">
         <div className="mx-auto max-w-3xl px-4 py-14 text-center sm:px-6 lg:px-8">
           <h1 className="text-balance font-display text-4xl font-bold leading-[1.1] tracking-tight text-ink-900 sm:text-5xl">
@@ -112,6 +159,29 @@ export default function PricingPage() {
             imagery, physical products and films. No attribution required. You cannot resell the
             generator itself or redistribute it as a competing service.
           </p>
+        </div>
+
+        <h2 className="mt-12 font-display text-2xl font-bold tracking-tight text-ink-900">
+          Pricing FAQ
+        </h2>
+        <div className="mt-6 space-y-3">
+          {FAQ.map((f) => (
+            <details
+              key={f.q}
+              className="surface-card group px-5 py-4 [&_summary::-webkit-details-marker]:hidden"
+            >
+              <summary className="flex cursor-pointer items-center justify-between gap-4 font-display text-base font-bold text-ink-900">
+                {f.q}
+                <span
+                  className="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-ink-100 text-ink-700 transition-transform group-open:rotate-45"
+                  aria-hidden="true"
+                >
+                  +
+                </span>
+              </summary>
+              <p className="mt-3 text-sm leading-relaxed text-ink-600">{f.a}</p>
+            </details>
+          ))}
         </div>
       </section>
     </>

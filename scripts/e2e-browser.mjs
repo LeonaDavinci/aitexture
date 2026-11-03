@@ -127,14 +127,14 @@ const h1 = await cdp.eval(`document.querySelector('h1')?.textContent?.trim()`);
 h1 ? pass(`H1 渲染: "${h1}"`) : fail("H1 缺失");
 
 const heroCta = await cdp.eval(
-  `!!document.querySelector('a[href="/tools/ai-texture-generator"]')`,
+  `!!document.querySelector('a[href="/ai-texture-generator"]')`,
 );
 heroCta ? pass("CTA 链接存在") : fail("CTA 链接缺失");
 
 await shot("01-home");
 
 console.log("\n[2] 工具页：执行一次真实生成");
-await goto(BASE + "/tools/ai-texture-generator");
+await goto(BASE + "/ai-texture-generator");
 
 // 填入提示词
 await cdp.eval(`(() => {
@@ -242,9 +242,9 @@ presetVal.includes("marble")
 console.log("\n[5] 其余页面 HTTP 与 SSR");
 for (const p of [
   "/",
-  "/tools/seamless-texture-generator",
-  "/tools/pbr-texture-generator",
-  "/tools/photo-to-texture",
+  "/seamless-texture-generator",
+  "/pbr-texture-generator",
+  "/photo-to-texture",
   "/guides",
   "/guides/pbr-texture-workflow",
   "/pricing",

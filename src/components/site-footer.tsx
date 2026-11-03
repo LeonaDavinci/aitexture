@@ -4,19 +4,28 @@ const COLUMNS = [
   {
     title: "Tools",
     links: [
-      { href: "/tools/ai-texture-generator", label: "AI Texture Generator" },
-      { href: "/tools/seamless-texture-generator", label: "Seamless Texture Generator" },
-      { href: "/tools/pbr-texture-generator", label: "PBR Texture Generator" },
-      { href: "/tools/photo-to-texture", label: "Photo to Texture" },
+      { href: "/ai-texture-generator", label: "AI Texture Generator" },
+      { href: "/seamless-texture-generator", label: "Seamless Texture Generator" },
+      { href: "/pbr-texture-generator", label: "PBR Texture Generator" },
+      { href: "/photo-to-texture", label: "Photo to Texture" },
+    ],
+  },
+  {
+    title: "For your engine",
+    links: [
+      { href: "/blender-texture-generator", label: "Blender Texture Generator" },
+      { href: "/unreal-engine-texture-generator", label: "Unreal Engine Texture Generator" },
+      { href: "/unity-texture-generator", label: "Unity Texture Generator" },
+      { href: "/guides/texture-for-unity-unreal-blender", label: "Engine setup guide" },
     ],
   },
   {
     title: "Materials",
     links: [
-      { href: "/tools/ai-texture-generator?preset=brick", label: "Brick" },
-      { href: "/tools/ai-texture-generator?preset=wood", label: "Wood" },
-      { href: "/tools/ai-texture-generator?preset=concrete", label: "Concrete" },
-      { href: "/tools/ai-texture-generator?preset=metal", label: "Metal" },
+      { href: "/wood-texture-generator", label: "Wood Texture Generator" },
+      { href: "/concrete-texture-generator", label: "Concrete Texture Generator" },
+      { href: "/fabric-texture-generator", label: "Fabric Texture Generator" },
+      { href: "/stone-texture-generator", label: "Stone Texture Generator" },
     ],
   },
   {
@@ -25,7 +34,7 @@ const COLUMNS = [
       { href: "/guides", label: "Guides & Tutorials" },
       { href: "/guides/what-is-a-tileable-texture", label: "What is a tileable texture" },
       { href: "/guides/pbr-texture-workflow", label: "PBR texture workflow" },
-      { href: "/guides/texture-for-unity-unreal-blender", label: "Unity / Unreal / Blender" },
+      { href: "/guides/texture-repetition-and-tiling-artifacts", label: "Fixing texture repetition" },
     ],
   },
   {
@@ -43,8 +52,8 @@ export function SiteFooter() {
   return (
     <footer className="border-t border-ink-200 bg-ink-50">
       <div className="mx-auto max-w-7xl px-4 py-14 sm:px-6 lg:px-8">
-        <div className="grid gap-10 md:grid-cols-2 lg:grid-cols-5">
-          <div className="lg:col-span-1">
+        <div className="grid gap-10 md:grid-cols-2 lg:grid-cols-6">
+          <div className="lg:col-span-2">
             <div className="flex items-center gap-2.5">
               <span className="grid h-9 w-9 place-items-center rounded-xl bg-ink-900 text-sm font-bold text-white">
                 AT
@@ -54,8 +63,8 @@ export function SiteFooter() {
               </span>
             </div>
             <p className="mt-4 max-w-xs text-sm leading-relaxed text-ink-600">
-              Free seamless PBR texture generator that runs entirely in your browser. No upload,
-              no watermark, commercial use included.
+              The simplest online seamless PBR texture generator. Runs in your browser, no upload,
+              no watermark, commercial license included.
             </p>
           </div>
 

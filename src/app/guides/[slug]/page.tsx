@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { pageMetadata } from "@/lib/seo";
+import { pageMetadata, breadcrumbJsonLd } from "@/lib/seo";
 import { GUIDES } from "@/lib/guides-data";
 
 export function generateStaticParams() {
@@ -20,6 +20,9 @@ export async function generateMetadata({
     description: guide.excerpt,
     path: `/guides/${guide.slug}`,
     keywords: [guide.category.toLowerCase(), guide.title.toLowerCase(), "texture guide"],
+    type: "article",
+    publishedTime: "2026-11-03T00:00:00.000Z",
+    modifiedTime: "2026-11-03T00:00:00.000Z",
   });
 }
 
@@ -255,8 +258,37 @@ export default async function GuidePage({ params }: { params: Promise<{ slug: st
     );
   }
 
+  const articleJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Article",
+    headline: guide.title,
+    description: guide.excerpt,
+    author: { "@type": "Organization", name: "AI Texture" },
+    publisher: { "@type": "Organization", name: "AI Texture" },
+    datePublished: "2026-11-03T00:00:00.000Z",
+    dateModified: "2026-11-03T00:00:00.000Z",
+    mainEntityOfPage: `https://www.aitexture.app/guides/${guide.slug}`,
+    articleSection: guide.category,
+    keywords: guide.title.toLowerCase(),
+    inLanguage: "en",
+  };
+
+  const breadcrumb = breadcrumbJsonLd([
+    { name: "Home", path: "/" },
+    { name: "Guides", path: "/guides" },
+    { name: guide.title, path: `/guides/${guide.slug}` },
+  ]);
+
   return (
     <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(articleJsonLd) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumb) }}
+      />
       <article className="mx-auto max-w-3xl px-4 py-14 sm:px-6 lg:px-8">
         <nav aria-label="Breadcrumb" className="text-xs font-medium text-ink-500">
           <ol className="flex flex-wrap items-center gap-2">
@@ -319,7 +351,7 @@ export default async function GuidePage({ params }: { params: Promise<{ slug: st
             Generate a seamless PBR texture pack free in your browser. No upload, no watermark.
           </p>
           <Link
-            href="/tools/ai-texture-generator"
+            href="/ai-texture-generator"
             className="mt-4 inline-flex rounded-xl bg-ink-900 px-5 py-2.5 text-sm font-bold text-white transition-colors hover:bg-ink-700"
           >
             Open the generator
