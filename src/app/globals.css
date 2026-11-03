@@ -1,0 +1,178 @@
+@import "tailwindcss";
+
+@theme {
+  --color-ink-50: #f5f7fb;
+  --color-ink-100: #e8ecf5;
+  --color-ink-200: #cdd6e6;
+  --color-ink-300: #a3b2cd;
+  --color-ink-400: #7186a8;
+  --color-ink-500: #4c6288;
+  --color-ink-600: #35486a;
+  --color-ink-700: #263551;
+  --color-ink-800: #18223a;
+  --color-ink-900: #0d1424;
+  --color-ink-950: #060a14;
+
+  --color-sun-50: #fff7ed;
+  --color-sun-100: #ffedd5;
+  --color-sun-200: #fed7aa;
+  --color-sun-300: #fdba74;
+  --color-sun-400: #fb923c;
+  --color-sun-500: #f97316;
+  --color-sun-600: #ea580c;
+  --color-sun-700: #c2410c;
+
+  --color-azure-50: #eff6ff;
+  --color-azure-100: #dbeafe;
+  --color-azure-200: #bfdbfe;
+  --color-azure-300: #93c5fd;
+  --color-azure-400: #60a5fa;
+  --color-azure-500: #3b82f6;
+  --color-azure-600: #2563eb;
+  --color-azure-700: #1d4ed8;
+
+  --color-mint-50: #ecfdf5;
+  --color-mint-100: #d1fae5;
+  --color-mint-300: #6ee7b7;
+  --color-mint-400: #34d399;
+  --color-mint-500: #10b981;
+  --color-mint-600: #059669;
+  --color-mint-700: #047857;
+
+  --font-sans: "Inter", "Segoe UI", "PingFang SC", "Microsoft YaHei", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Space Grotesk", "Inter", "Segoe UI", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+
+  --radius-xl2: 1.25rem;
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    background-color: #ffffff;
+    color: var(--color-ink-900);
+    font-family: var(--font-sans);
+    font-feature-settings: "cv02", "cv03", "cv04";
+    -webkit-font-smoothing: antialiased;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    font-family: var(--font-display);
+    letter-spacing: -0.02em;
+  }
+
+  ::selection {
+    background-color: var(--color-sun-300);
+    color: var(--color-ink-950);
+  }
+
+  :focus-visible {
+    outline: 3px solid var(--color-azure-500);
+    outline-offset: 2px;
+    border-radius: 6px;
+  }
+}
+
+@layer components {
+  .surface-card {
+    background-color: #ffffff;
+    border: 1px solid var(--color-ink-200);
+    border-radius: 1rem;
+  }
+
+  .btn-primary {
+    background-color: var(--color-sun-500);
+    color: #ffffff;
+    border: 1px solid var(--color-sun-600);
+    box-shadow: 0 1px 0 0 rgb(255 255 255 / 0.25) inset;
+    transition: transform 0.12s ease, background-color 0.12s ease, box-shadow 0.12s ease;
+  }
+
+  .btn-primary:hover {
+    background-color: var(--color-sun-600);
+  }
+
+  .btn-primary:active {
+    transform: translateY(1px);
+  }
+
+  .btn-secondary {
+    background-color: var(--color-ink-900);
+    color: #ffffff;
+    transition: background-color 0.12s ease, transform 0.12s ease;
+  }
+
+  .btn-secondary:hover {
+    background-color: var(--color-ink-700);
+  }
+
+  .btn-secondary:active {
+    transform: translateY(1px);
+  }
+
+  .chip {
+    border: 1px solid var(--color-ink-200);
+    background-color: #ffffff;
+    color: var(--color-ink-700);
+    border-radius: 9999px;
+    transition: all 0.12s ease;
+  }
+
+  .chip:hover {
+    border-color: var(--color-ink-400);
+    color: var(--color-ink-900);
+  }
+
+  .chip[data-active="true"] {
+    background-color: var(--color-azure-600);
+    border-color: var(--color-azure-700);
+    color: #ffffff;
+  }
+
+  .grid-noise {
+    background-image:
+      linear-gradient(to right, rgb(13 20 36 / 0.04) 1px, transparent 1px),
+      linear-gradient(to bottom, rgb(13 20 36 / 0.04) 1px, transparent 1px);
+    background-size: 28px 28px;
+  }
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+
+  .text-pretty {
+    text-wrap: pretty;
+  }
+}
+
+/* 纹理预览网格背景 */
+.tile-grid {
+  background-color: var(--color-ink-50);
+  background-image:
+    linear-gradient(to right, rgb(13 20 36 / 0.08) 1px, transparent 1px),
+    linear-gradient(to bottom, rgb(13 20 36 / 0.08) 1px, transparent 1px);
+  background-size: 32px 32px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
