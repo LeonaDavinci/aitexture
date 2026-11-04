@@ -1,11 +1,11 @@
 /**
- * 材质生成引擎：把自然语言提示词解析成材质配方，程序化生成可平铺的 albedo + height。
+ * Material generation engine: parses a natural language prompt into a material recipe and procedurally generates tileable albedo and height.
  *
- * 设计目标：
- * 1. 完全在浏览器端运行，零上传、零 API 成本；
- * 2. 输出严格无缝 —— 所有高度函数只使用「归一化瓦片坐标 + 整数频率」，
- *    因此 f(0,v) ≡ f(1,v)，边缘天然闭合；
- * 3. 同一配方 + 同一种子 => 稳定复现，可分享 seed。
+ * Design goals:
+ * 1. Runs entirely in the browser, so there is no upload and no API cost;
+ * 2. Output is strictly seamless - every height function uses normalised tile coordinates with integer frequencies,
+ *    so f(0,v) equals f(1,v) and the edges close naturally;
+ * 3. The same recipe and seed always reproduce the same result, so a seed can be shared.
  */
 
 import {
@@ -49,15 +49,15 @@ export interface MaterialRecipe {
   kind: MaterialKind;
   base: RGB;
   accent: RGB;
-  /** 尺度倍率：作用于频率，值越大细节越密 */
+  /** Scale multiplier applied to frequencies; larger means denser detail */
   scale: number;
-  /** 0-1，表面粗糙程度 */
+  /** 0-1 surface roughness */
   roughness: number;
-  /** 0-1，缝隙/裂纹强度 */
+  /** 0-1 gap and crack intensity */
   gap: number;
-  /** 0-1，细节层级强度 */
+  /** 0-1 detail layer intensity */
   detail: number;
-  /** 是否为金属材质（决定金属度通道） */
+  /** Whether this material is metallic, which drives the metalness channel */
   metallic: boolean;
   seed: Seed;
 }
@@ -102,6 +102,12 @@ const MATERIAL_DEFAULTS: Record<
   water: { base: "#2f6f8f", accent: "#173f57", scale: 1, roughness: 0.15, gap: 0.05, detail: 0.4, metallic: false },
 };
 
+/**
+ * Material keyword table.
+ *
+ * English terms come first; the Chinese aliases are kept so a Chinese prompt
+ * still resolves to the right material model.
+ */
 const KIND_KEYWORDS: Array<[MaterialKind, string[]]> = [
   ["wood", ["wood", "timber", "plank", "floorboard", "oak", "pine", "walnut", "bamboo", "wooden", "木板", "木材", "木纹"]],
   ["brick", ["brick", "masonry", "wall brick", "red brick", "砖", "砖块", "红砖"]],
@@ -147,7 +153,7 @@ const FINISH_KEYWORDS: Array<
   ["detailed", { detail: 0.9 }],
 ];
 
-/** 从提示词解析出材质配方 */
+/** Parses a prompt into a material recipe */
 export function parsePrompt(prompt: string, seed: Seed = 1): MaterialRecipe {
   const p = prompt.toLowerCase();
 
@@ -174,7 +180,7 @@ export function parsePrompt(prompt: string, seed: Seed = 1): MaterialRecipe {
       break;
     }
   }
-  // 主色命中后，副色做明暗派生，避免不协调的撞色
+  // Once a dominant colour matches, derive the accent from it so the two never clash
   const lum = base[0] * 0.299 + base[1] * 0.587 + base[2] * 0.114;
   const derivedAccent = lum > 0.55 ? mixRgb(base, [0, 0, 0], 0.45) : mixRgb(base, [1, 1, 1], 0.28);
 
@@ -194,7 +200,7 @@ export function parsePrompt(prompt: string, seed: Seed = 1): MaterialRecipe {
     if (p.includes(word)) Object.assign(recipe, patch);
   }
 
-  // 提示词里的像素数隐含分辨率意图（粗糙大块 vs 细腻）
+  // A pixel count in the prompt implies a resolution intent, coarse blocks versus fine detail
   const fine = p.match(/\b(\d{2,4})\s?(px|pixel)\b/);
   if (fine) {
     const px = parseInt(fine[1], 10);
@@ -205,29 +211,29 @@ export function parsePrompt(prompt: string, seed: Seed = 1): MaterialRecipe {
 }
 
 /* ------------------------------------------------------------------ */
-/* 材质高度函数                                                          */
+/* Material height functions                                                  */
 /*                                                                     */
-/* 约定：u/v 为归一化瓦片坐标 [0,1)；各向异性用 freqX/freqY 分离表达。   */
-/* 每个函数必须满足 f(0,v) === f(1,v) 且 f(u,0) === f(u,1)。            */
+/* Contract: u and v are normalised tile coordinates in [0,1); anisotropy comes from */
+/* separating freqX and freqY. Each function must satisfy f(0,v) === f(1,v) and f(u,0) === f(u,1). */
 /* ------------------------------------------------------------------ */
 
 type HeightFn = (u: number, v: number, r: MaterialRecipe) => number;
 
-/** 把基础频率按 scale 缩放并取整，保证始终为整数周期 */
+/** Scales a base frequency by scale and rounds it, so the period stays integral */
 function F(base: number, scale: number): number {
   return Math.max(1, Math.round(base * scale));
 }
 
 function woodHeight(u: number, v: number, r: MaterialRecipe): number {
   const s = r.seed;
-  // 年轮线沿 u 方向延展（横向年轮），warp 负责让年轮轻微起伏而非形成大波浪
+  // Growth rings run along u; the warp term bends them gently instead of making broad waves
   const warp = fbmTiled(u, v, F(3, r.scale), F(8, r.scale), 4, s + 11) - 0.5;
   const ringFreq = F(11, r.scale);
-  // 正模保证 v=0 与 v=1 的相位严格一致
+  // A positive modulo keeps the phase identical at v=0 and v=1
   const ringPhase = (((v * ringFreq + warp * 0.5) % 1) + 1) % 1;
-  // 年轮早晚材：靠近年轮线处更暗
+  // Early and late wood: the area near a ring line reads darker
   const rings = Math.abs(ringPhase - 0.5) * 2;
-  // 纤维沿 u 方向拉长（纵向细丝）
+  // Fibres stretch along u, giving long fine strands
   const fiber = fbmTiled(u, v, F(2, r.scale), F(30, r.scale), 3, s + 31);
   const knot = smoothMix(
     0.88,
@@ -243,7 +249,7 @@ function brickHeight(u: number, v: number, r: MaterialRecipe): number {
   const cols = F(4, r.scale);
   const ry = v * rows;
   const row = Math.floor(ry);
-  // 奇偶行错缝：错缝量必须是 cols 的一半整数倍才闭合
+  // Alternating rows are offset by half a brick; the offset must stay an exact fraction of the column count to close
   const offset = row % 2 === 0 ? 0 : 0.5;
   const rx = u * cols + offset;
   const col = Math.floor(rx);
@@ -300,7 +306,7 @@ function leatherHeight(u: number, v: number, r: MaterialRecipe): number {
 function marbleHeight(u: number, v: number, r: MaterialRecipe): number {
   const s = r.seed;
   const warp = fbmTiled(u, v, F(3, r.scale), F(3, r.scale), 4, s + 2) - 0.5;
-  // 脉络方向：整数系数保证相位在边界处闭合
+  // Vein direction: integer coefficients keep the phase continuous at the boundary
   const phase = u * F(2, r.scale) + v * F(1, r.scale) + warp * 3.4;
   const vein = Math.abs(Math.sin(phase * Math.PI));
   const fine = fbmTiled(u, v, F(8, r.scale), F(8, r.scale), 4, s + 55);
@@ -309,7 +315,7 @@ function marbleHeight(u: number, v: number, r: MaterialRecipe): number {
 
 function metalHeight(u: number, v: number, r: MaterialRecipe): number {
   const s = r.seed;
-  // 拉丝纹：沿 v 方向的高频细条（横向拉丝），无横向叠加以避免规则网格感
+  // Brushed lines are high frequency stripes along v, with no crossing layer to avoid a regular grid
   const brush = stripesTiled(u, v, F(72, r.scale), s, 0);
   const brushSoft = fbmTiled(u, v, F(64, r.scale), F(3, r.scale), 3, s + 51);
   const dent = fbmTiled(u, v, F(5, r.scale), F(5, r.scale), 3, s + 17);
@@ -362,7 +368,7 @@ function snowHeight(u: number, v: number, r: MaterialRecipe): number {
 
 function grassHeight(u: number, v: number, r: MaterialRecipe): number {
   const s = r.seed;
-  // 草叶沿 v 方向拉长：纵轴低频
+  // Grass blades stretch along v, so the vertical axis uses a low frequency
   const blades = fbmTiled(u, v, F(24, r.scale), F(4, r.scale), 4, s + 2);
   const clumps = fbmTiled(u, v, F(5, r.scale), F(5, r.scale), 3, s + 33);
   const cells = 1 - smoothMix(0, 0.4, worleyTiled(u, v, F(12, r.scale), F(12, r.scale), s + 9).f1);
@@ -456,14 +462,14 @@ export const MATERIAL_LABELS: Record<MaterialKind, string> = {
 };
 
 /**
- * 在任意连续坐标 (u,v) ∈ [0,1]² 上采样材质高度场。
- * 暴露这个函数是为了让自检可以严格验证周期性：f(0,v) 必须严格等于 f(1,v)。
+ * Samples the material height field at any continuous coordinate (u,v) in [0,1].
+ * This is exported so the self-check can verify strict periodicity: f(0,v) must equal f(1,v) exactly.
  */
 export function sampleHeight(recipe: MaterialRecipe, u: number, v: number): number {
   return HEIGHT_FNS[recipe.kind](u, v, recipe);
 }
 
-/** 生成一张纹理（albedo + height），size 必须是 2 的幂便于严格周期 */
+/** Generates one texture (albedo plus height); size must be a power of two for strict periodicity */
 export function generateTexture(prompt: string, size: number, seed: Seed): TextureResult {
   const recipe = parsePrompt(prompt, seed);
   const heightFn = HEIGHT_FNS[recipe.kind];
@@ -491,14 +497,14 @@ export function generateTexture(prompt: string, size: number, seed: Seed): Textu
       const t = clamp01(h * 0.85 + detail * 0.15);
       let [cr, cg, cb] = mixRgb(recipe.accent, recipe.base, t);
 
-      // 缝隙/裂纹处压暗
+      // Darken the gaps and cracks
       const crevice = smoothMix(0.42, 0, h);
       const dark = 1 - crevice * gapAmt * 0.55;
       cr *= dark;
       cg *= dark;
       cb *= dark;
 
-      // 粗糙表面的高频颗粒：同样使用周期噪声，保持边界闭合
+      // High frequency grain on rough surfaces also uses periodic noise so the edges stay closed
       const grain =
         (valueNoiseTiled(u * grainFreq, v * grainFreq, grainFreq, grainFreq, recipe.seed + 999) - 0.5) *
         0.05 *
@@ -519,10 +525,10 @@ export function generateTexture(prompt: string, size: number, seed: Seed): Textu
 }
 
 /* ------------------------------------------------------------------ */
-/* PBR 贴图派生：normal / roughness / AO / height                     */
+/* PBR derivations: normal / roughness / AO / height                      */
 /* ------------------------------------------------------------------ */
 
-/** 由高度场生成切线空间法线贴图 */
+/** Builds a tangent space normal map from the height field */
 export function heightToNormal(height: Float32Array, size: number, strength = 2.2): ImageData {
   const out = new ImageData(size, size);
   const d = out.data;
@@ -547,8 +553,8 @@ export function heightToNormal(height: Float32Array, size: number, strength = 2.
 }
 
 /**
- * 金属度贴图：由材质类型决定是否为金属，非金属区域为 0。
- * 金属表面（metal / rust / carbon）在磨损处降低金属度，露出基底。
+ * Metalness map: whether a material is metallic comes from its type, and non-metal areas are zero.
+ * Metal surfaces (metal, rust, carbon) lose metalness where they wear, exposing the base.
  */
 export function heightToMetalness(
   height: Float32Array,
@@ -559,7 +565,7 @@ export function heightToMetalness(
   const out = new ImageData(size, size);
   const d = out.data;
   for (let i = 0; i < height.length; i++) {
-    // 凸起处保持金属度，凹陷/磨损处按 wearAmount 衰减，露出非金属基底
+    // Raised areas keep their metalness; recessed and worn areas fade by wearAmount to reveal the base
     const h = height[i];
     const wear = isMetal ? clamp01(1 - smoothMix(0.25, 0.75, h) * wearAmount) : 0;
     const m = isMetal ? clamp01(0.55 + h * 0.45) * wear : 0;
@@ -571,8 +577,8 @@ export function heightToMetalness(
 }
 
 /**
- * Roblox 专用打包：MetalnessMap（R = 金属度，G = 反射率）
- * Roblox Studio 的 SurfaceAppearance 使用这张图同时控制金属与反射。
+ * Roblox specific packing: MetalnessMap (R = metalness, G = reflectance)
+ * Roblox Studio's SurfaceAppearance uses this one image to drive both metalness and reflectance.
  */
 export function packRobloxMetalness(
   metalness: ImageData,
@@ -585,7 +591,7 @@ export function packRobloxMetalness(
   const s = metalness.data;
   for (let i = 0; i < size * size; i++) {
     const o = i * 4;
-    // R = 金属度；G = 反射率（非金属区约 0.5，金属区约 0.7）
+    // R = metalness; G = reflectance (about 0.5 on non-metal, 0.7 on metal)
     const m = s[o] / 255;
     const h = height[i];
     const isMetal = m > 0.5;
@@ -599,8 +605,8 @@ export function packRobloxMetalness(
 }
 
 /**
- * Unreal Engine 专用打包：Mask Map（R = AO，G = Roughness，B = Metallic）
- * UE5 的标准做法，把三张灰度图合成一张，省三次采样。
+ * Unreal Engine specific packing: Mask Map (R = AO, G = Roughness, B = Metallic)
+ * The UE5 standard, combining three grayscale maps into one to save texture samples.
  */
 export function packUnrealMask(
   ao: ImageData,
@@ -620,7 +626,7 @@ export function packUnrealMask(
   return out;
 }
 
-/** 粗糙度贴图：高度越高（凸起）越光滑，凹槽更粗糙 */
+/** Roughness map: raised areas are smoother, recessed areas rougher */
 export function heightToRoughness(
   height: Float32Array,
   size: number,
@@ -638,7 +644,7 @@ export function heightToRoughness(
   return out;
 }
 
-/** 简易 AO：与周围平均高度比较得到遮蔽估计 */
+/** Simple AO: compares each texel against the average height of its neighbourhood */
 export function heightToAO(height: Float32Array, size: number, radius = 4): ImageData {
   const out = new ImageData(size, size);
   const d = out.data;
@@ -664,7 +670,7 @@ export function heightToAO(height: Float32Array, size: number, radius = 4): Imag
   return out;
 }
 
-/** 高度图转灰度 ImageData */
+/** Converts the height field to a grayscale ImageData */
 export function heightToImageData(height: Float32Array, size: number): ImageData {
   const out = new ImageData(size, size);
   const d = out.data;

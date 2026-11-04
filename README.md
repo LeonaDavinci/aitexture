@@ -4,154 +4,191 @@ Free, browser-based AI texture generator. Turns a text prompt into **seamless, t
 texture packs** — albedo, normal, roughness, AO and height — with no upload, no watermark and no
 sign-up.
 
-> 需求分析与竞品调研见 [REQUIREMENTS.md](./REQUIREMENTS.md)
+> Requirements analysis and competitor research: [REQUIREMENTS.md](./REQUIREMENTS.md)
 
 ---
 
-## 为什么不一样
+## What makes this different
 
-大多数 AI 纹理工具生成的是"一张好看的图"，而不是"能铺的材质"。本项目的核心差异：
+Most AI texture tools produce "a nice looking image" rather than "a material you can tile". The
+core differences here:
 
-| | 常见做法 | 本项目 |
+| | Common approach | This project |
 | --- | --- | --- |
-| 无缝 | 后期 offset + clone stamp 修补，糊结构、留低频棋盘格 | 噪声格点索引对周期取模，边界**由构造保证闭合** |
-| PBR | 各通道独立生成，互相对不上 | 全部从**同一高度场**派生，物理一致 |
-| 成本 | 免费版加水印 / 锁下载 | 纯前端生成，零算力成本 → 永久免费 |
+| Seamless | Offset + clone stamp afterwards, which smears structure and leaves low frequency checkerboard | Noise lattice indices wrap by the period, so edges close **by construction** |
+| PBR | Each channel generated separately, so they do not agree | All channels derive from **one height field**, so they stay physically consistent |
+| Cost | Free tier watermarks or locks the download | Generation runs in the browser, so compute cost is zero and the tool stays free forever |
 
 ---
 
-## 技术栈
+## Platform specific exports
 
-- **Next.js 16**（App Router，SSR）· React 19 · TypeScript 5.7 · Tailwind CSS 4
-- 纹理引擎为自研纯 Canvas 2D 程序化实现，**零第三方运行时依赖**
+Differentiation lives in the **exported artefacts**, not in the copy. Each engine gets the map
+structure it actually reads:
+
+| Platform | Export pack | Key detail |
+| --- | --- | --- |
+| **Roblox** | ColorMap, NormalMap, MetalnessMap, RoughnessMap | SurfaceAppearance takes exactly four maps. The MetalnessMap is packed Roblox style: R = metalness, G = reflectance |
+| **Unreal Engine** | BaseColor, Normal, Mask (R=AO G=Roughness B=Metallic) plus an ORM variant | The Mask Map is the UE5 standard and saves two texture samples |
+| **Blender** | Base Color, Normal, Roughness, AO, Height | Full five channel set, and AO plus Height both have real uses here |
+| **Unity** | Albedo, Normal, Smoothness, AO, Height | URP consumes smoothness, which is the inverse of roughness |
+
+Each platform page also ships its own setup script (Lua, Editor Python, Blender Python, C# Editor)
+and presets mapped to that engine's own material names.
 
 ---
 
-## 快速开始
+## Stack
+
+- **Next.js 16** (App Router, SSR) · React 19 · TypeScript 5.7 · Tailwind CSS 4
+- The texture engine is a self-contained procedural implementation on Canvas 2D, with **zero third
+  party runtime dependencies**
+
+---
+
+## Quick start
 
 ```bash
 npm install
-npm run dev        # 开发服务器
-npm run build      # 生产构建（webpack 管线，见下方说明）
-npm start          # 生产启动
+npm run dev        # development server
+npm run build      # production build (webpack pipeline, see the note below)
+npm start          # production server
 ```
 
-### 验证脚本
+### Verification scripts
 
 ```bash
-node scripts/verify-engine.mjs     # 引擎自检：20 种材质的严格无缝性 + PBR 通道派生
-node scripts/render-preview.mjs     # 渲染材质预览图到 .preview/out/
-node scripts/seo-check.mjs          # 全站 SEO 校验：元数据 / schema / canonical / 重定向 / sitemap
-node scripts/e2e-browser.mjs        # 真实无头 Chrome E2E（需先 npm start）
-node scripts/fetch-page.mjs <url>   # 抓取客户端渲染页面的正文
+node scripts/verify-engine.mjs         # engine self-check: strict seamlessness across 20 materials + PBR derivation
+node scripts/verify-platform-packs.mjs  # pixel-level check of the Roblox and Unreal packed maps
+node scripts/render-preview.mjs         # renders material previews to .preview/out/
+node scripts/seo-check.mjs              # site-wide SEO audit across 22 routes
+node scripts/e2e-browser.mjs            # real headless Chrome E2E (requires npm start first)
+node scripts/fetch-page.mjs <url>       # extracts the body text of a client-rendered page
+node scripts/snapshot.mjs <base> <name:path>   # screenshots a route, optionally with @scrollY
 ```
 
-`seo-check.mjs` 覆盖 21 个路由，检查 title/description 长度、canonical 唯一性、H1 唯一性、
-OG/Twitter 标签、JSON-LD 解析、内链数量、301 重定向、sitemap 收录与 robots 配置。
+`verify-engine.mjs` checks that the **continuous function is exactly equal at u=0 and u=1**
+(error below 1e-9), rather than comparing pixel columns — the latter produces false failures
+because of the sampling offset.
 
-`verify-engine.mjs` 的检验标准是**连续函数在 u=0 与 u=1 处严格相等**（误差 < 1e-9），
-而不是比较像素列 —— 后者会因采样点偏移产生假阳性。
+`seo-check.mjs` covers 22 routes and inspects title and description length, canonical uniqueness,
+H1 uniqueness, OG and Twitter tags, JSON-LD parsing, internal link counts, 301 redirects, sitemap
+coverage and the robots configuration.
 
 ---
 
-## 目录结构
+## Project structure
 
 ```
 src/
 ├── app/
-│   ├── page.tsx                      落地页（Hero / 工具 / 特性 / 流程 / 场景 / FAQ / CTA）
-│   ├── layout.tsx                    根布局 + 全局 metadata
-│   ├── globals.css                   设计令牌（@theme）+ 组件类
-│   ├── sitemap.ts / robots.ts        动态生成
-│   ├── opengraph-image.tsx           动态 OG 分享卡片（1200×630）
-│   ├── ai-texture-generator/         主工具页（主关键词）
-│   ├── seamless-texture-generator/   长尾：seamless / tileable
-│   ├── pbr-texture-generator/        长尾：PBR / normal / roughness
-│   ├── photo-to-texture/             长尾：photo to texture（开发中）
-│   ├── blender-texture-generator/    软件工作流页 ×3
+│   ├── page.tsx                      landing page (hero, tool, features, comparison, workflow, clusters, use cases, FAQ, CTA)
+│   ├── layout.tsx                    root layout and global metadata
+│   ├── globals.css                   design tokens (@theme) plus component classes
+│   ├── sitemap.ts / robots.ts        generated at build time
+│   ├── opengraph-image.tsx           dynamic OG share card (1200x630)
+│   ├── ai-texture-generator/         core tool page (primary keyword)
+│   ├── seamless-texture-generator/   long tail: seamless, tileable
+│   ├── pbr-texture-generator/        long tail: PBR, normal, roughness
+│   ├── photo-to-texture/             long tail: photo to texture (in development)
+│   ├── roblox-texture-generator/     engine workflow page x4
+│   ├── blender-texture-generator/
 │   ├── unreal-engine-texture-generator/
 │   ├── unity-texture-generator/
-│   ├── wood|concrete|fabric|stone-texture-generator/   材质分类页 ×4
-│   ├── guides/[slug]/                4 篇技术指南（SSG）
+│   ├── wood|concrete|fabric|stone-texture-generator/   material category pages x4
+│   ├── guides/[slug]/                4 technical guides (SSG)
 │   └── pricing / about / privacy / terms
 ├── components/
-│   ├── texture-generator.tsx         客户端交互岛（生成 / 预览 / 下载）
-│   ├── engine-workflow-page.tsx      引擎工作流页模板
-│   ├── material-category-page.tsx    材质分类页模板
+│   ├── texture-generator.tsx         client interaction island (generate, preview, download)
+│   ├── platform-texture-generator.tsx platform aware generator with per platform export packs
+│   ├── platform-page.tsx             engine workflow page template
+│   ├── platform-banner.tsx           platform banners and the homepage combo banner
+│   ├── material-category-page.tsx    material category page template
 │   ├── site-header.tsx / site-footer.tsx
 ├── lib/
-│   ├── noise.ts                      可平铺噪声库（周期性 value/fbm/ridged/worley/stripes）
-│   ├── texture-engine.ts             提示词解析 + 19 种材质高度函数 + PBR 派生
-│   ├── seo.ts                        metadata 工厂 + JSON-LD 工厂
-│   ├── keyword-clusters.ts           五大关键词集群与页面配置
-│   └── guides-data.ts                指南数据
-├── proxy.ts                          旧路径 → 根级路径的 301 重定向
-└── scripts/                          验证与预览脚本
+│   ├── noise.ts                      tileable noise library (periodic value, fbm, ridged, worley, stripes)
+│   ├── texture-engine.ts             prompt parsing + 19 material height functions + PBR derivation
+│   ├── platforms.ts                  platform registry with per platform exports, scripts and copy
+│   ├── keyword-clusters.ts           the five keyword clusters and their page configuration
+│   ├── seo.ts                        metadata factory and JSON-LD factory
+│   └── guides-data.ts                guide content
+├── proxy.ts                          301 redirects from the old /tools/* paths
+└── scripts/                          verification and preview scripts
+
+public/logos/
+├── roblox-icon.svg                   Roblox logo mark, extracted from Roblox Logo 2022.svg
+└── blender.svg                       Blender logo without text, from Wikimedia Commons
 ```
 
 ---
 
-## 关键词集群架构
+## Keyword cluster architecture
 
-按五大集群建站，避免做 25 个高度重复的页面：
+The site is organised around five clusters, which avoids building 25 near-duplicate pages:
 
-| 集群 | 落地页 | 目标词 |
+| Cluster | Landing page | Target keywords |
 | --- | --- | --- |
-| 主工具 | `/ai-texture-generator/` | ai texture generator, free ai texture generator |
-| 无缝纹理 | `/seamless-texture-generator/` | seamless texture generator, tileable texture generator |
-| PBR 材质 | `/pbr-texture-generator/` | ai pbr texture generator, pbr material generator |
-| 软件工作流 | `/blender-…` `/unreal-engine-…` `/unity-…` | blender texture generator, unreal engine texture generator, unity texture generator |
-| 材质分类 | `/wood-…` `/concrete-…` `/fabric-…` `/stone-…` | ai wood texture generator, ai concrete texture generator… |
+| Core tool | `/ai-texture-generator/` | ai texture generator, free ai texture generator |
+| Seamless | `/seamless-texture-generator/` | seamless texture generator, tileable texture generator |
+| PBR materials | `/pbr-texture-generator/` | ai pbr texture generator, pbr material generator |
+| Software workflow | `/roblox-…` `/blender-…` `/unreal-engine-…` `/unity-…` | roblox texture generator, blender texture generator, unreal engine texture generator, unity texture generator |
+| Material categories | `/wood-…` `/concrete-…` `/fabric-…` `/stone-…` | ai wood texture generator, ai concrete texture generator… |
 
-旧路径 `/tools/*` 通过 `src/proxy.ts` 301 到根级路径（关键词前置到 URL 根目录）。
+The old `/tools/*` paths 301 to the root-level paths through `src/proxy.ts`, which puts the keyword
+at the root of the URL where it carries more weight.
 
 ---
 
-## 核心算法
+## Core algorithm
 
-**无缝的本质** —— 让噪声函数的格点在周期边界闭合：
+**What seamless actually means** — the noise lattice has to close at the period boundary:
 
 ```ts
 valueNoiseTiled(x, y, periodX, periodY, seed) {
-  const xa = ((x0 % periodX) + periodX) % periodX;  // 格点索引回绕
+  const xa = ((x0 % periodX) + periodX) % periodX;  // wrap the lattice index
   const xb = (xa + 1) % periodX;
   // → f(0) ≡ f(1) by construction
 }
 ```
 
-**关键约束**（改动引擎时必须遵守）：
+**Constraints to respect when changing the engine**:
 
-1. 高度函数只接受**归一化瓦片坐标** `[0,1)`；
-2. 各向异性用**频率分离**（`freqX` / `freqY`）表达，**绝不能**对坐标做非整数缩放 —— 那会破坏周期性；
-3. 任何取模运算要用正模 `((x % 1) + 1) % 1`（JS 的 `%` 对负数返回负值）；
-4. Worley 必须用**环形距离**，否则跨边界的特征点会跳变。
+1. Height functions only accept **normalised tile coordinates** in `[0,1)`;
+2. Express anisotropy by **separating frequencies** (`freqX` / `freqY`). Never scale coordinates by
+   a non-integer factor, because that breaks periodicity;
+3. Every modulo must use a positive form, `((x % 1) + 1) % 1`, since JavaScript's `%` returns a
+   negative value for negative operands;
+4. Worley must use a **circular distance**, otherwise feature points jump across the boundary.
 
-**PBR 派生链路**
+**PBR derivation chain**
 
 ```
-高度场 height[]
-  ├─ heightToNormal()      → Sobel 梯度 → 切线空间法线
-  ├─ heightToRoughness()   → 高度↑ ⇒ 粗糙度↓（凸起更光滑）
-  ├─ heightToAO()          → 与邻域均值比较 → 遮蔽估计
-  └─ 灰度图                → Height / Displacement
+height field height[]
+  ├─ heightToNormal()      → Sobel gradient → tangent space normal
+  ├─ heightToRoughness()   → height up ⇒ roughness down
+  ├─ heightToMetalness()   → metalness by material type, worn areas reveal the base
+  ├─ heightToAO()          → compare against the neighbourhood average → occlusion estimate
+  ├─ packRobloxMetalness() → R = metalness, G = reflectance
+  ├─ packUnrealMask()      → R = AO, G = roughness, B = metallic
+  └─ grayscale             → Height / Displacement
 ```
 
 ---
 
-## 已知构建说明
+## Known build note
 
-Next.js 16 默认把 TypeScript 检查放进 jest-worker 子进程，在部分 Windows 环境下 worker 通信会
-挂起（CPU 空闲但构建不返回）。已在 `next.config.ts` 中启用 `experimental.useTypeScriptCli`
-改为进程内检查；构建脚本固定使用 `next build --webpack`（Turbopack 的类型检查 worker 同样有
-此问题）。
+Next.js 16 runs the TypeScript check inside a jest-worker child process, and on some Windows
+machines that worker hangs (the CPU sits idle and the build never returns). `next.config.ts`
+enables `experimental.useTypeScriptCli` to run the check in-process instead, and the build script
+is pinned to `next build --webpack` because Turbopack has the same worker problem.
 
 ---
 
-## 待办
+## Roadmap
 
-- [ ] 照片转无缝纹理（边缘镜像 + 低频光照消除）
-- [ ] 负向提示词
-- [ ] 3D 球体 UV 实时预览
-- [ ] 材质变体批量 ZIP 导出
-- [ ] 公开图库（可 fork seed）
-- [ ] Web Worker + OffscreenCanvas 加速大尺寸导出
+- [ ] Photo to seamless texture (edge mirroring plus low frequency lighting removal)
+- [ ] Negative prompts
+- [ ] Live 3D sphere UV preview
+- [ ] Batch ZIP export for material variants
+- [ ] Public gallery with forkable seeds
+- [ ] Web Worker and OffscreenCanvas for large exports

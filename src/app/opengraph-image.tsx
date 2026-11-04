@@ -4,7 +4,7 @@ export const alt = "AI Texture Generator - Free Seamless PBR Texture Maker";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
-/** 社交分享卡片：主关键词 + 差异化卖点 + 视觉锚点 */
+/** Social share card: primary keyword plus the differentiating selling points */
 export default async function OpengraphImage() {
   return new ImageResponse(
     (
@@ -21,7 +21,7 @@ export default async function OpengraphImage() {
           position: "relative",
         }}
       >
-        {/* 右上装饰：纹理方格 */}
+        {/* Top right decoration: texture grid */}
         <div
           style={{
             position: "absolute",

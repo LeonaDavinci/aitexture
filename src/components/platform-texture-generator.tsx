@@ -103,7 +103,7 @@ export function PlatformTextureGenerator({
         const mask = packUnrealMask(ao, rough, metal, resolution);
         const robloxMetal = packRobloxMetalness(metal, tex.height, resolution);
 
-        // 平台专属导出包：文件名后缀与通道结构都按平台约定
+        // Platform specific export pack: file suffixes and channel layout follow the engine convention
         const mapUrls: Record<string, string> = {};
         const slug = `${tex.recipe.kind}-${s}`;
 
@@ -124,7 +124,7 @@ export function PlatformTextureGenerator({
           mapUrls.AO = imageDataToUrl(ao);
           mapUrls.Height = imageDataToUrl(ao);
         } else {
-          // Blender：完整五通道
+          // Blender: the complete five channel set
           mapUrls["Base Color"] = imageDataToUrl(albedo);
           mapUrls.Normal = imageDataToUrl(normal);
           mapUrls.Roughness = imageDataToUrl(rough);
@@ -132,7 +132,7 @@ export function PlatformTextureGenerator({
           mapUrls.Height = imageDataToUrl(ao);
         }
 
-        // 预览用的通用视图
+        // Generic views used by the preview panel
         mapUrls.__albedo = imageDataToUrl(albedo);
         mapUrls.__normal = imageDataToUrl(normal);
         mapUrls.__roughness = imageDataToUrl(rough);
@@ -201,7 +201,7 @@ export function PlatformTextureGenerator({
     }
   };
 
-  /** 当前视图可用的通道列表 */
+  /** Channels available in the current view */
   const viewOptions: Array<{ key: ViewMode; label: string }> = useMemo(() => {
     const base: Array<{ key: ViewMode; label: string }> = [
       { key: "albedo", label: "Albedo" },
@@ -221,7 +221,7 @@ export function PlatformTextureGenerator({
 
   return (
     <div className="grid gap-6 lg:grid-cols-[360px_1fr]">
-      {/* 控制面板 */}
+      {/* Control panel */}
       <div className="surface-card h-fit p-5 lg:sticky lg:top-24">
         <div className="flex items-center justify-between gap-3">
           <h2 className="font-display text-lg font-bold text-ink-900">Generator</h2>
@@ -353,7 +353,7 @@ export function PlatformTextureGenerator({
         )}
       </div>
 
-      {/* 结果区 */}
+      {/* Results */}
       <div className="space-y-6">
         <div className="surface-card overflow-hidden">
           <div className="flex flex-wrap items-center gap-2 border-b border-ink-200 px-4 py-3">
@@ -424,7 +424,7 @@ export function PlatformTextureGenerator({
 
         {results.length > 0 && (
           <>
-            {/* 变体 */}
+            {/* Variants */}
             <div className="surface-card p-5">
               <h2 className="font-display text-lg font-bold text-ink-900">
                 Generated variants
@@ -455,7 +455,7 @@ export function PlatformTextureGenerator({
               </div>
             </div>
 
-            {/* 平台导出包 */}
+            {/* Platform export pack */}
             <div className="surface-card p-5">
               <div className="flex flex-wrap items-center gap-3">
                 <h2 className="font-display text-lg font-bold text-ink-900">
@@ -514,7 +514,7 @@ export function PlatformTextureGenerator({
               </div>
             </div>
 
-            {/* 引擎接入脚本 */}
+            {/* Engine setup script */}
             <div className="surface-card overflow-hidden">
               <div className="flex flex-wrap items-center gap-3 border-b border-ink-200 px-5 py-4">
                 <h2 className="font-display text-lg font-bold text-ink-900">

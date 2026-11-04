@@ -4,7 +4,7 @@ export const SITE_URL = "https://www.aitexture.app";
 export const SITE_NAME = "AI Texture";
 export const SITE_TAGLINE = "Free AI Texture Generator";
 
-/** 品牌定位语（豆包调研建议：不要定位成"又一款 AI 纹理生成工具"） */
+/** Brand positioning line - avoid framing this as "yet another AI texture tool" */
 export const SITE_POSITIONING =
   "The simplest online seamless PBR texture generator for production";
 
@@ -86,9 +86,9 @@ export interface PageMetaOptions {
   keywords?: string[];
   ogTitle?: string;
   ogDescription?: string;
-  /** 该页主要内容类型，用于 JSON-LD 判定 */
+  /** Main content type, used to pick the JSON-LD shape */
   type?: "website" | "article";
-  /** 面包屑路径，用于 BreadcrumbList schema */
+  /** Breadcrumb trail, used for the BreadcrumbList schema */
   breadcrumb?: Array<{ name: string; path: string }>;
   publishedTime?: string;
   modifiedTime?: string;
@@ -97,7 +97,7 @@ export interface PageMetaOptions {
 export function pageMetadata(opts: PageMetaOptions): Metadata {
   const url = `${SITE_URL}${opts.path}`;
 
-  // 标题里已含品牌名时不再追加后缀，避免 title 超长被 Google 截断
+  // Skip the suffix when the title already carries the brand name, so it stays within Google's length budget
   const rawTitle = opts.title;
   const title =
     rawTitle.toLowerCase().includes("ai texture") || rawTitle.endsWith("| AI Texture")
@@ -105,7 +105,7 @@ export function pageMetadata(opts: PageMetaOptions): Metadata {
       : `${rawTitle} | AI Texture`;
 
   return {
-    // 用 absolute 绕过根 layout 的 title.template，避免 " | AI Texture" 二次追加
+    // Use absolute to bypass the root layout title template and avoid a second suffix
     title: { absolute: title },
     description: opts.description,
     keywords: opts.keywords,
@@ -133,7 +133,7 @@ export function pageMetadata(opts: PageMetaOptions): Metadata {
   };
 }
 
-/** 生成 BreadcrumbList JSON-LD */
+/** Builds the BreadcrumbList JSON-LD */
 export function breadcrumbJsonLd(items: Array<{ name: string; path: string }>) {
   return {
     "@context": "https://schema.org",
@@ -147,7 +147,7 @@ export function breadcrumbJsonLd(items: Array<{ name: string; path: string }>) {
   };
 }
 
-/** 生成 SoftwareApplication JSON-LD（工具类页面用） */
+/** Builds the SoftwareApplication JSON-LD used on tool pages */
 export function softwareAppJsonLd(opts: {
   name: string;
   description: string;
@@ -178,7 +178,7 @@ export function softwareAppJsonLd(opts: {
   };
 }
 
-/** 生成 FAQPage JSON-LD */
+/** Builds the FAQPage JSON-LD */
 export function faqJsonLd(faq: Array<{ q: string; a: string }>) {
   return {
     "@context": "https://schema.org",

@@ -1,15 +1,25 @@
 import type { PlatformConfig, PlatformId } from "@/lib/platforms";
 
 /**
- * 平台视觉标识 —— 用各平台标志性的几何母题做 SVG 图形，
- * 配合品牌色让用户一眼认出这是哪个平台的页面。
+ * Platform visual identity.
  *
- * 母题设计：
- * - Roblox   : 倾斜方块 + 圆形孔洞（Roblox 经典图标结构）
- * - Unreal   : 分段圆环 + 纵向切口（引擎标志的环形与负形）
- * - Blender  : 双层同心圆环（Blender 标志的球体与眼形）
- * - Unity    : 等轴立方体线框（Unity 标志的立方体）
+ * Roblox and Blender use their official logos (stored in public/logos/, from Wikimedia Commons):
+ * - Roblox  : logo mark extracted from "Roblox Logo 2022.svg" (tilted square with a punched hole)
+ * - Blender : "Blender logo no text.svg" (official orange ring with blue pupil)
+ *
+ * Unreal Engine and Unity keep hand-drawn geometric marks: both trademarks are registered,
+ * so abstract shapes avoid the trademark issue and keep the set visually consistent.
+ *
+ * Mark design:
+ * - Unreal : segmented ring with a vertical notch
+ * - Unity  : isometric cube wireframe
  */
+
+/** Official logo file paths (inside the public directory) */
+const OFFICIAL_LOGOS: Partial<Record<PlatformId, string>> = {
+  roblox: "/logos/roblox-icon.svg",
+  blender: "/logos/blender.svg",
+};
 
 function RobloxMark({ color }: { color: string }) {
   return (
@@ -56,6 +66,18 @@ const MARKS: Record<PlatformId, (p: { color: string }) => React.JSX.Element> = {
   unity: UnityMark,
 };
 
+/** Brand colour and display name per platform */
+const BRAND: Record<PlatformId, { brand: string; name: string }> = {
+  roblox: { brand: "#E2231A", name: "Roblox" },
+  unreal: { brand: "#2E6BC8", name: "Unreal Engine" },
+  blender: { brand: "#E87D0D", name: "Blender" },
+  unity: { brand: "#222C37", name: "Unity" },
+};
+
+/**
+ * Platform logo. Platforms with an official logo render it as an <img>
+ * (preserving the original colours and proportions), the rest use the drawn SVG.
+ */
 export function PlatformMark({
   platform,
   size = 80,
@@ -65,7 +87,23 @@ export function PlatformMark({
   size?: number;
   className?: string;
 }) {
-  const cfg = PLATFORM_CONFIG_MAP[platform];
+  const cfg = BRAND[platform];
+  const official = OFFICIAL_LOGOS[platform];
+
+  if (official) {
+    return (
+      // eslint-disable-next-line @next/next/no-img-element
+      <img
+        src={official}
+        width={size}
+        height={size}
+        alt={`${cfg.name} logo`}
+        className={className}
+        style={{ objectFit: "contain" }}
+      />
+    );
+  }
+
   const Mark = MARKS[platform];
   return (
     <svg
@@ -81,19 +119,12 @@ export function PlatformMark({
   );
 }
 
-/** 平台配置的本地副本，避免循环导入 */
-const PLATFORM_CONFIG_MAP: Record<PlatformId, { brand: string; name: string }> = {
-  roblox: { brand: "#E2231A", name: "Roblox" },
-  unreal: { brand: "#2E6BC8", name: "Unreal Engine" },
-  blender: { brand: "#E87D0D", name: "Blender" },
-  unity: { brand: "#222C37", name: "Unity" },
-};
-
 /* ------------------------------------------------------------------ */
-/* 平台 Banner                                                          */
+/* Platform banner                                                     */
 /* ------------------------------------------------------------------ */
 
 export function PlatformBanner({ config }: { config: PlatformConfig }) {
+  const official = OFFICIAL_LOGOS[config.id];
   const Mark = MARKS[config.id];
 
   return (
@@ -103,7 +134,7 @@ export function PlatformBanner({ config }: { config: PlatformConfig }) {
         background: `linear-gradient(120deg, ${config.brand} 0%, ${config.brandAlt} 100%)`,
       }}
     >
-      {/* 纹理网格底纹 */}
+      {/* Texture grid backdrop */}
       <div
         className="absolute inset-0 opacity-[0.13]"
         aria-hidden="true"
@@ -112,7 +143,7 @@ export function PlatformBanner({ config }: { config: PlatformConfig }) {
             "repeating-linear-gradient(90deg, #ffffff 0 1px, transparent 1px 34px), repeating-linear-gradient(0deg, #ffffff 0 1px, transparent 1px 34px)",
         }}
       />
-      {/* 斜向光带 */}
+      {/* Diagonal light sweep */}
       <div
         className="absolute inset-0"
         aria-hidden="true"
@@ -123,17 +154,31 @@ export function PlatformBanner({ config }: { config: PlatformConfig }) {
       />
 
       <div className="relative flex flex-col gap-6 p-7 sm:p-9 lg:flex-row lg:items-center lg:gap-10">
-        {/* 标志 */}
+        {/* Logo. Official logos keep their own colours, so they sit on a light
+            plate rather than directly on the brand gradient - the Roblox mark is
+            black and the Blender mark is orange, and both disappear on a
+            saturated backdrop. */}
         <div
           className="grid shrink-0 place-items-center rounded-2xl p-4"
-          style={{ background: "rgba(255,255,255,0.14)", backdropFilter: "blur(6px)" }}
+          style={{ background: "rgba(255,255,255,0.92)" }}
         >
-          <svg width="88" height="88" viewBox="0 0 80 80" role="img" aria-label={`${config.name} logo`}>
-            <Mark color="#ffffff" />
-          </svg>
+          {official ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={official}
+              width={88}
+              height={88}
+              alt={`${config.name} logo`}
+              style={{ objectFit: "contain" }}
+            />
+          ) : (
+            <svg width="88" height="88" viewBox="0 0 80 80" role="img" aria-label={`${config.name} logo`}>
+              <Mark color={config.brand} />
+            </svg>
+          )}
         </div>
 
-        {/* 文案 */}
+        {/* Copy */}
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-center gap-2.5">
             <span
@@ -177,7 +222,7 @@ export function PlatformBanner({ config }: { config: PlatformConfig }) {
         </div>
       </div>
 
-      {/* 底部能力条 */}
+      {/* Export map strip */}
       <div
         className="relative flex flex-wrap gap-x-6 gap-y-2 border-t px-7 py-4 sm:px-9"
         style={{ borderColor: "rgba(255,255,255,0.22)", background: "rgba(0,0,0,0.14)" }}
@@ -203,7 +248,7 @@ export function PlatformBanner({ config }: { config: PlatformConfig }) {
 }
 
 /* ------------------------------------------------------------------ */
-/* 首页组合 Banner                                                      */
+/* Homepage combo banner                                              */
 /* ------------------------------------------------------------------ */
 
 export function PlatformComboBanner({
@@ -242,9 +287,10 @@ export function PlatformComboBanner({
           </p>
         </div>
 
-        {/* 四平台卡片 */}
+        {/* Four platform cards */}
         <div className="mt-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
           {platforms.map((p) => {
+            const official = OFFICIAL_LOGOS[p.id];
             const Mark = MARKS[p.id];
             return (
               <a
@@ -262,9 +308,27 @@ export function PlatformComboBanner({
                   }}
                 />
                 <div className="relative">
-                  <svg width="42" height="42" viewBox="0 0 80 80" aria-hidden="true">
-                    <Mark color="#ffffff" />
-                  </svg>
+                  {official ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img
+                      src={official}
+                      width={42}
+                      height={42}
+                      alt={`${p.name} logo`}
+                      style={{
+                        objectFit: "contain",
+                        // Official marks keep their own colours, so they need a
+                        // light plate to stay legible on the brand gradient.
+                        background: "rgba(255,255,255,0.92)",
+                        borderRadius: 10,
+                        padding: 4,
+                      }}
+                    />
+                  ) : (
+                    <svg width="42" height="42" viewBox="0 0 80 80" aria-hidden="true">
+                      <Mark color="#ffffff" />
+                    </svg>
+                  )}
                   <h3 className="mt-3 font-display text-base font-bold text-white">{p.name}</h3>
                   <p className="mt-1.5 text-xs leading-relaxed text-white/85">
                     {p.exportMaps.length} maps · {p.codeLanguage} setup script

@@ -18,14 +18,14 @@ const ACCENT_TEXT: Record<string, string> = {
 interface Props {
   config: EngineWorkflow;
   faq: Array<{ q: string; a: string }>;
-  /** 引擎接入步骤 */
+  /** Engine integration steps */
   steps: Array<{ title: string; body: string }>;
-  /** 引擎设置代码块 */
+  /** Engine settings code block */
   code: string;
   codeLang?: string;
-  /** 引擎小贴士 */
+  /** Pro tips */
   tips: string[];
-  /** 引擎专属的额外说明段落 */
+  /** Extra engine specific explanation sections */
   notes: Array<{ h2: string; p: string[] }>;
 }
 

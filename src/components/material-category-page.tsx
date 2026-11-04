@@ -20,7 +20,7 @@ const ACCENT_TEXT: Record<string, string> = {
 interface Props {
   config: MaterialPage;
   faq: Array<{ q: string; a: string }>;
-  /** 相关材质页 */
+  /** Related material pages */
   related: Array<{ slug: string; name: string }>;
 }
 

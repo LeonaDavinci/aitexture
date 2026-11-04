@@ -1,12 +1,12 @@
 /**
- * 关键词集群 → 落地页映射（依据豆包调研的五大集群）。
- * 集群 1 主工具词 / 2 无缝纹理 / 3 PBR 材质 / 4 软件工作流 / 5 材质分类
+ * Keyword cluster to landing page mapping, based on the five researched clusters.
+ * Cluster 1 core tool / 2 seamless / 3 PBR / 4 software workflow / 5 material categories
  */
 export interface KeywordCluster {
   id: string;
   name: string;
   description: string;
-  /** 关键词列表，用于页面 keywords meta 与正文自然嵌入 */
+  /** Keywords used for the page meta and woven naturally into the body copy */
   keywords: string[];
 }
 
@@ -65,7 +65,7 @@ export const CLUSTERS: KeywordCluster[] = [
   },
 ];
 
-/** 引擎工作流页配置 */
+/** Engine workflow page configuration */
 export interface EngineWorkflow {
   slug: string;
   name: string;
@@ -139,7 +139,7 @@ export const ENGINE_WORKFLOWS: EngineWorkflow[] = [
   },
 ];
 
-/** 材质分类页配置 */
+/** Material category page configuration */
 export interface MaterialPage {
   slug: string;
   name: string;
@@ -149,9 +149,9 @@ export interface MaterialPage {
   description: string;
   h1: string;
   intro: string;
-  /** 该材质的提示词示例 */
+  /** Example prompt for this material */
   prompt: string;
-  /** 材质特征描述，用于正文 */
+  /** Material trait descriptions, used in the body copy */
   traits: string[];
   accent: string;
 }

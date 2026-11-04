@@ -6,11 +6,11 @@ import { breadcrumbJsonLd, faqJsonLd, softwareAppJsonLd } from "@/lib/seo";
 
 interface Props {
   config: PlatformConfig;
-  /** 相关平台页（内链） */
+  /** Sibling platform pages for internal linking */
   siblings: Array<{ href: string; name: string; short: string; brand: string }>;
-  /** 额外的专章（平台特有内容） */
+  /** Optional extra section for platform specific content */
   extraSection?: React.ReactNode;
-  /** 额外 FAQ */
+  /** Additional FAQ entries */
   extraFaq?: Array<{ q: string; a: string }>;
 }
 
@@ -84,17 +84,17 @@ export function PlatformPage({ config, siblings, extraSection, extraFaq }: Props
         </div>
       </section>
 
-      {/* 平台 Banner */}
+      {/* Platform banner */}
       <section className="mx-auto max-w-7xl px-4 pt-8 sm:px-6 lg:px-8">
         <PlatformBanner config={config} />
       </section>
 
-      {/* 生成器 */}
+      {/* Generator */}
       <section className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
         <PlatformTextureGenerator platform={config} />
       </section>
 
-      {/* 用户画像 */}
+      {/* Audience and pain point */}
       <section className="border-y border-ink-200 bg-ink-50">
         <div className="mx-auto max-w-5xl px-4 py-14 sm:px-6 lg:px-8">
           <div className="grid gap-6 md:grid-cols-2">
@@ -120,7 +120,7 @@ export function PlatformPage({ config, siblings, extraSection, extraFaq }: Props
         </div>
       </section>
 
-      {/* 接入步骤 */}
+      {/* Integration steps */}
       <section className="mx-auto max-w-5xl px-4 py-14 sm:px-6 lg:px-8">
         <h2 className="text-balance font-display text-3xl font-bold tracking-tight text-ink-900">
           How to use these textures in {config.name}
@@ -142,7 +142,7 @@ export function PlatformPage({ config, siblings, extraSection, extraFaq }: Props
           ))}
         </ol>
 
-        {/* 导出包结构 */}
+        {/* Export pack structure */}
         <h2 className="mt-12 font-display text-2xl font-bold tracking-tight text-ink-900">
           What&apos;s in the {config.name} export pack
         </h2>
@@ -183,7 +183,7 @@ export function PlatformPage({ config, siblings, extraSection, extraFaq }: Props
           </table>
         </div>
 
-        {/* 平台专属论述 */}
+        {/* Platform specific discussion */}
         {config.notes.map((n) => (
           <section key={n.h2} className="mt-12">
             <h2 className="font-display text-2xl font-bold tracking-tight text-ink-900">{n.h2}</h2>
@@ -197,7 +197,7 @@ export function PlatformPage({ config, siblings, extraSection, extraFaq }: Props
 
         {extraSection}
 
-        {/* 材质映射表 */}
+        {/* Material mapping table */}
         <h2 className="mt-12 font-display text-2xl font-bold tracking-tight text-ink-900">
           Prompt to {config.name} material mapping
         </h2>
@@ -256,7 +256,7 @@ export function PlatformPage({ config, siblings, extraSection, extraFaq }: Props
           ))}
         </div>
 
-        {/* 兄弟平台 */}
+        {/* Sibling platforms */}
         <h2 className="mt-12 font-display text-2xl font-bold tracking-tight text-ink-900">
           Other engine workflows
         </h2>

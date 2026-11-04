@@ -1,11 +1,11 @@
 /**
- * 平台注册表 —— 四个目标平台的差异化配置。
+ * Platform registry - per-platform configuration for the four target engines.
  *
- * 差异化不在文案，而在**导出的产物形态**：
- * - Roblox  : SurfaceAppearance 四图结构 + MetalnessMap(R=金属度,G=反射率) 打包 + 脚本贴图 UV 规范
- * - Unreal  : Mask Map(R=AO, G=Roughness, B=Metallic) 打包 + 母材质/材质实例工作流
- * - Blender : 节点组工作流 + 色彩管理 + 导出设置
- * - Unity   : 导入设置矩阵 + C# Editor 脚本 + SRP Batcher 注意事项
+ * Differentiation lives in the exported artefacts, not in the copy:
+ * - Roblox  : SurfaceAppearance four-map structure + MetalnessMap (R=metalness, G=reflectance) packing + Scripted Texture UV notes
+ * - Unreal  : Mask Map packing (R=AO, G=Roughness, B=Metallic) + parent material / material instance workflow
+ * - Blender : node group workflow + colour management + export settings
+ * - Unity   : import settings matrix + C# Editor script + SRP Batcher notes
  */
 
 export type PlatformId = "roblox" | "unreal" | "blender" | "unity";
@@ -14,17 +14,17 @@ export interface PlatformPreset {
   key: string;
   label: string;
   prompt: string;
-  /** 该预设对应的引擎内材质名/枚举 */
+  /** The matching material name or enum inside the engine */
   engineMaterial: string;
 }
 
 export interface PlatformExportMap {
-  /** 导出文件名后缀，如 "ColorMap" */
+  /** Export filename suffix, e.g. "ColorMap" */
   suffix: string;
   label: string;
-  /** 该图在引擎里的作用说明 */
+  /** What this map controls inside the engine */
   role: string;
-  /** 是否为平台特有（打包图） */
+  /** Whether this map is platform specific (a packed map) */
   special?: boolean;
 }
 
@@ -32,13 +32,13 @@ export interface PlatformConfig {
   id: PlatformId;
   name: string;
   shortName: string;
-  /** 品牌主色 */
+  /** Primary brand colour */
   brand: string;
-  /** 品牌辅色（渐变用） */
+  /** Secondary brand colour (for gradients) */
   brandAlt: string;
-  /** 品牌色的浅色底（文字/徽标用） */
+  /** Tinted background derived from the brand colour */
   brandSoft: string;
-  /** 深色文字色 */
+  /** Dark text colour that pairs with the brand colour */
   brandInk: string;
   primaryKeyword: string;
   keywords: string[];
@@ -46,31 +46,31 @@ export interface PlatformConfig {
   description: string;
   h1: string;
   intro: string;
-  /** 目标用户画像 */
+  /** Who this platform page is written for */
   audience: string;
-  /** 目标用户最核心的诉求 */
+  /** The core problem these users actually hit */
   painPoint: string;
-  /** 该平台专属的预设（不是通用材质预设） */
+  /** Platform specific presets, not the generic material ones */
   presets: PlatformPreset[];
-  /** 平台默认分辨率 */
+  /** Default export resolution for this platform */
   defaultResolution: 512 | 1024 | 2048;
-  /** 推荐分辨率说明 */
+  /** Notes on the recommended resolution */
   resolutionNote: string;
-  /** 导出贴图集 */
+  /** The exported map set */
   exportMaps: PlatformExportMap[];
-  /** 引擎接入代码 */
+  /** Engine setup script */
   code: string;
   codeLanguage: string;
   codeCaption: string;
-  /** 接入步骤 */
+  /** Integration steps */
   steps: Array<{ title: string; body: string }>;
-  /** Banner 上的一句话卖点（3-4 条） */
+  /** Short selling points shown on the banner */
   highlights: string[];
-  /** 该平台特有的注意事项 */
+  /** Engine specific caveats */
   notes: Array<{ h2: string; p: string[] }>;
-  /** 该平台特有的 FAQ */
+  /** Engine specific FAQ */
   faq: Array<{ q: string; a: string }>;
-  /** 常用材质对应表 */
+  /** Prompt to engine material mapping table */
   materialMap: Array<{ prompt: string; engine: string }>;
 }
 
@@ -81,10 +81,10 @@ export const PLATFORMS: PlatformConfig[] = [
   {
     id: "roblox",
     highlights: [
-      "SurfaceAppearance 四图结构，直接挂载",
-      "MetalnessMap 已按 Roblox 双通道打包",
-      "预设对应内置 Material 枚举",
-      "附 Roblox Studio 挂载脚本",
+      "SurfaceAppearance four-map structure, drop-in ready",
+      "MetalnessMap packed in Roblox dual-channel format",
+      "Presets map to the built-in Material enum",
+      "Includes a Roblox Studio attach script",
     ],
     name: "Roblox",
     shortName: "Roblox",
@@ -207,7 +207,7 @@ part:AddChild(appearance)
 part.Material = Enum.Material.Wood
 part.Reflectance = 0.08`,
     codeLanguage: "lua",
-    codeCaption: "Roblox Studio — 挂载到 MeshPart 的 SurfaceAppearance 脚本",
+    codeCaption: "Roblox Studio - attach a SurfaceAppearance to a MeshPart",
     steps: [
       {
         title: "Generate the texture",
@@ -236,31 +236,31 @@ part.Reflectance = 0.08`,
     ],
     notes: [
       {
-        h2: "为什么 Roblox 只需要四张图，而不是五张",
+        h2: "Why Roblox needs four maps, not five",
         p: [
-          "SurfaceAppearance 没有 AO 槽位，也没有独立的 Height 槽位。环境光遮蔽在 Roblox 里由引擎的光照系统近似处理，你额外塞一张 AO 图进去不会有任何效果。",
-          "Height 图同样没有位置放 —— Roblox 用的是内置的几何凹凸，不是位移贴图。所以在这里导出 AO 和 Height 是浪费带宽，MetalnessMap 才是 Roblox 特有的关键图。",
+          "SurfaceAppearance has no AO slot and no separate Height slot. Ambient occlusion is approximated by the engine lighting system in Roblox, so an extra AO map does nothing at all.",
+          "Height has nowhere to go either - Roblox uses built-in geometric bumps rather than displacement maps. Exporting AO and Height here is wasted bandwidth, while the MetalnessMap is the map that actually matters in Roblox.",
         ],
       },
       {
-        h2: "MetalnessMap 的双通道打包",
+        h2: "The dual-channel MetalnessMap",
         p: [
-          "Roblox 的 MetalnessMap 是一张图里装两个信息：R 通道是金属度，决定这个表面像不像金属；G 通道是反射率，决定非金属表面的镜面反射强度。",
-          "常见的做法是手动在 Photoshop 里拼通道，但多数人把 G 通道留成了黑色，结果非金属表面完全没有高光，塑料感极重。这里的导出已经按 Roblox 的约定填好了：金属区反射率 0.7，非金属区 0.5，直接可用。",
+          "A Roblox MetalnessMap carries two pieces of information in one image: the R channel is metalness, which decides whether the surface reads as metal, and the G channel is reflectance, which sets the specular strength of a non-metal surface.",
+          "The usual approach is to composite the channels by hand in Photoshop, and most people leave the G channel black - the result is a non-metal surface with no highlights at all and a heavy plastic look. These exports already follow the Roblox convention: reflectance 0.7 in metal areas and 0.5 elsewhere, ready to use.",
         ],
       },
       {
-        h2: "Material 枚举才是真正决定观感的开关",
+        h2: "The Material enum is what actually decides the look",
         p: [
-          "很多 Roblox 创作者以为贴图能决定一切，但 Material 枚举才决定表面如何响应光照。Plastic 枚举会让任何贴图都带上塑料般的均匀高光，无论你的 roughness 图怎么画。",
-          "实践顺序是：先确定 Part 的 Material，再让提示词往那个材质靠。比如你要做砖墙，就把 Material 设为 Brick，然后提示词写 'red brick wall with mortar joints'。两者匹配时，SurfaceAppearance 的细节才能真正发挥出来。",
+          "Many Roblox creators assume the texture decides everything, but the Material enum is what controls how a surface responds to light. The Plastic enum gives any texture a uniform plastic sheen, no matter how you drew the roughness map.",
+          "The practical order is: decide the Part Material first, then steer the prompt toward it. For a brick wall, set the Material to Brick and write 'red brick wall with mortar joints'. Only when the two agree can the SurfaceAppearance detail actually come through.",
         ],
       },
       {
-        h2: "脚本贴图（Scripted Texture）完全另一套逻辑",
+        h2: "Scripted Textures follow a completely different logic",
         p: [
-          "如果你的项目用的是 Scripted Texture 而不是 SurfaceAppearance，那贴图会被直接铺在砖块表面，此时贴图本身就是最终外观，没有 PBR 通道可言 —— 一张颜色图就够了。",
-          "这类场景下把生成结果当作普通颜色图使用即可，但要注意 Scripted Texture 的 UV 是基于砖块面片的，重复密度由 StudsPerTile 控制，通常 8 到 16 比较合适。",
+          "If your project uses a Scripted Texture rather than a SurfaceAppearance, the image is painted straight onto the block face. The texture is then the entire final appearance and there are no PBR channels to speak of - one colour map is enough.",
+          "In that case just use the generated result as an ordinary colour map. Keep in mind that Scripted Texture UVs follow the block face, and the repeat density is controlled by StudsPerTile - somewhere between 8 and 16 usually works well.",
         ],
       },
     ],
@@ -310,10 +310,10 @@ part.Reflectance = 0.08`,
   {
     id: "unreal",
     highlights: [
-      "Mask Map 已打包 R=AO G=Roughness B=Metallic",
-      "同时提供 ORM 变体应对既有管线",
-      "预设区分 Landscape 与静态网格用途",
-      "附 Editor Utility Python 导入脚本",
+      "Mask Map packed as R=AO G=Roughness B=Metallic",
+      "ORM variant included for existing pipelines",
+      "Presets split Landscape from static mesh use",
+      "Includes an Editor Utility Python import script",
     ],
     name: "Unreal Engine",
     shortName: "Unreal",
@@ -479,11 +479,11 @@ def import_texture_set(asset_name, maps, mask_path=None):
 #   Metallic   <- Mask.B
 #   Tiling is a Vector4 parameter on the Material Instance, not on the texture`,
     codeLanguage: "python",
-    codeCaption: "Unreal Engine 5 — Editor Utility Python 批量导入并配置压缩与环绕模式",
+    codeCaption: "Unreal Engine 5 - Editor Utility Python for batch import, compression and wrap mode",
     steps: [
       {
         title: "Generate the texture",
-        body: "默认 1024px，这是 UE5 的基准尺寸。上方预设按引擎用途组织：Landscape 用的沥青、岩石、草、沙、雪，与静态网格用的混凝土、金属、砖墙分开。",
+        body: "The default 1024px is the UE5 baseline. The presets above are grouped by engine use - asphalt, rock, grass, sand and snow for Landscape, separate from concrete, metal and brick for static meshes.",
       },
       {
         title: "Download the export pack",
@@ -508,31 +508,31 @@ def import_texture_set(asset_name, maps, mask_path=None):
     ],
     notes: [
       {
-        h2: "Mask Map 是 UE5 材质的标准做法",
+        h2: "Mask Maps are the UE5 standard",
         p: [
-          "UE5 的材质里同时采样 AO、Roughness、Metallic 三张灰度图会占三次纹理采样。把它们打包进一张 Mask 图的 R/G/B 三个通道，一次采样就能喂三个输入，同时省下两个纹理槽。",
-          "通道顺序必须一致：R 是 Ambient Occlusion，G 是 Roughness，B 是 Metallic。这里的导出已经按这个约定打包好。如果你要接入已有管线，先确认对方用的是 UE 约定还是 ORM 约定 —— 导出包里两种都给了。",
+          "Sampling three separate grayscale maps for AO, Roughness and Metallic costs three texture samples. Packing them into the R, G and B channels of one Mask map feeds all three inputs from a single sample and frees up two texture slots.",
+          "The channel order has to match: R for Ambient Occlusion, G for Roughness, B for Metallic. These exports already follow that convention. If you are feeding an existing pipeline, check whether it expects the UE order or the ORM order - both are in the download.",
         ],
       },
       {
-        h2: "Lumen 会放大贴图上的每一个问题",
+        h2: "Lumen amplifies every problem in a texture",
         p: [
-          "Lumen 求解全局光照，材质上的每一点差异都会通过反弹光被放大。一个整体亮度不均的贴图，会在地面上照出一格一格的明暗方块 —— 这就是所谓的棋盘格。",
-          "这里的贴图在瓦片周期内平均亮度是一致的，所以即使 Lumen 把间接光来回反射，表面依然读作一个连续的材质。",
+          "Lumen solves global illumination, so every small difference in a material gets amplified through bounced light. A texture with uneven overall brightness casts a grid of light and dark squares across the floor - the classic checkerboard.",
+          "The average brightness across a tile here stays uniform, so even with Lumen bouncing indirect light around the room, the surface still reads as one continuous material.",
         ],
       },
       {
-        h2: "Landscape 的图层混合策略",
+        h2: "Layer blending strategy for Landscape",
         p: [
-          "单一贴图铺满地形，在低角度视角下几乎一定会露出网格。UE5 的标准解法是 Landscape Layer Blend：准备两到三个同材质的变体，用绘制好的顶点权重混合。",
-          "配合一张低频的 detail normal，网格感会基本消失。这里的四个 Landscape 预设（沥青、岩石、草、沙、雪）就是按这个思路准备的 —— 生成三个变体做混合，比生成一张然后硬铺效果好得多。",
+          "A single texture stretched over terrain almost always reveals its grid at grazing angles. The standard UE5 answer is a Landscape Layer Blend: prepare two or three variants of the same material and blend them with painted vertex weights.",
+          "Paired with a low-frequency detail normal, the grid essentially disappears. The four Landscape presets here - asphalt, rock, grass, sand and snow - are built around that idea: generate three variants and blend them, rather than generating one and tiling it hard.",
         ],
       },
       {
-        h2: "压缩设置比分辨率更值得花时间",
+        h2: "Compression settings deserve more time than resolution",
         p: [
-          "很多项目把 Normal 贴图留成默认压缩，结果法线被当成颜色压缩，高频细节直接糊掉。压缩设置应该逐张检查：Normal 必须 TC_NORMALMAP，Mask 必须 TC_MASKS。",
-          "另外别忘了关掉不需要的 sRGB。颜色图开、遮罩类关 —— 这个开关留错会让整个材质偏暗或偏亮。",
+          "Many projects leave Normal maps at the default compression, which compresses them as colour and smears the high-frequency detail. Check compression per map: Normal must be TC_NORMALMAP and Mask must be TC_MASKS.",
+          "And do not forget to turn sRGB off where it does not belong. On for colour maps, off for masks - leaving this wrong makes the whole material read too dark or too bright.",
         ],
       },
     ],
@@ -580,10 +580,10 @@ def import_texture_set(asset_name, maps, mask_path=None):
   {
     id: "blender",
     highlights: [
-      "完整五通道，AO 与 Height 都可用",
-      "附一键构建节点树的 Python 脚本",
-      "自动处理 sRGB / Non-Color 色彩空间",
-      "预设对应 Principled 参数组合",
+      "Full five channels, AO and Height included",
+      "Includes a one-click node tree Python script",
+      "Handles sRGB / Non-Color colour spaces automatically",
+      "Presets map to Principled parameter sets",
     ],
     name: "Blender",
     shortName: "Blender",
@@ -771,11 +771,11 @@ def build_material(basecolor, normal, roughness, ao, height=None):
 # - True displacement needs subdivision + a Displacement modifier,
 #   and Cycles must use "Displacement" in the Render properties`,
     codeLanguage: "python",
-    codeCaption: "Blender 4.x — 一键构建 Principled BSDF 节点树的 Python 脚本",
+    codeCaption: "Blender 4.x - Python script that builds the Principled BSDF node tree",
     steps: [
       {
         title: "Generate the texture",
-        body: "默认 1024px。上方预设按 Blender 的着色器参数分组：抛光大理石对应 Roughness 0.15，金属对应 Metallic 1.0，织物对应 Sheen 0.3。",
+        body: "The default 1024px suits most Blender work. The presets above are grouped by shader parameter - polished marble maps to Roughness 0.15, metal to Metallic 1.0, cloth to Sheen 0.3.",
       },
       {
         title: "Download the five maps",
@@ -800,31 +800,31 @@ def build_material(basecolor, normal, roughness, ao, height=None):
     ],
     notes: [
       {
-        h2: "Blender 4.x 的 Principled BSDF 改名了",
+        h2: "Blender 4.x renamed the Principled BSDF inputs",
         p: [
-          "4.0 版本重命名了一批输入插槽：Specular 变成 Specular IOR Level，Subsurface 变成 Subsurface Weight，Transmission 变成 Transmission Weight，Sheen 变成 Sheen Weight，Emission 变成 Emission Color 和 Emission Strength。",
-          "如果网上抄来的节点教程连不上，很可能就是撞上了这个改名。老版本的节点名在 4.x 里仍然可用，但新建物体默认是新的插槽名。",
+          "Version 4.0 renamed a batch of input sockets: Specular became Specular IOR Level, Subsurface became Subsurface Weight, Transmission became Transmission Weight, Sheen became Sheen Weight, and Emission split into Emission Color and Emission Strength.",
+          "If a node setup copied from the web refuses to connect, this rename is usually why. The old socket names still work in 4.x, but newly created objects default to the new ones.",
         ],
       },
       {
-        h2: "法线贴图必须配 UV Map 节点",
+        h2: "Normal maps need an explicit UV Map node",
         p: [
-          "这是 Blender 里最常见的静默错误。Normal Map 节点默认使用活动 UV 地图，如果场景里有多个 UV 地图，它可能取到错误的那一个，结果就是法线看起来方向错乱或者完全没效果。",
-          "永远显式添加一个 UV Map 节点接到 Normal Map 的 UV 输入上，选对 UV 地图。这个脚本已经这么做了。",
+          "This is the most common silent error in Blender. The Normal Map node defaults to the active UV map, so in a scene with several UV maps it can pick the wrong one - the normals then look scrambled or do nothing at all.",
+          "Always add a UV Map node explicitly and wire it to the Normal Map UV input, picking the right map. The included script already does this.",
         ],
       },
       {
-        h2: "真位移与凹凸不是一回事",
+        h2: "True displacement and bump shading are different things",
         p: [
-          "把 Height 图接到 Bump 节点是最省事也最通用的做法，它只改变着色法线，不需要额外几何体。",
-          "真位移需要给网格加 Subdivision Surface 修改器，再挂 Displacement 修改器并指定 Height 贴图，同时在渲染属性里把 Displacement 设为 Displacement（默认是 Bump）。真位移会真正改变轮廓线，代价是几何量暴增。",
+          "Wiring the Height map into a Bump node is the cheapest and most universal approach - it only changes the shading normal and needs no extra geometry.",
+          "True displacement needs a Subdivision Surface modifier on the mesh, then a Displacement modifier pointing at the Height map, and the render Displacement setting switched to Displacement rather than Bump. It genuinely changes the silhouette, at the cost of a large jump in geometry.",
         ],
       },
       {
-        h2: "色彩管理与输出",
+        h2: "Colour management and output",
         p: [
-          "Blender 4.x 默认使用 AgX 色彩管理，它对高光的处理比 Filmic 更克制。这会让同样的贴图在 Blender 里看起来比在游戏引擎里暗一些 —— 这不是贴图的问题，是色彩管理的问题。",
-          "如果要和引擎里的结果对齐，可以把视图变换临时切到 Standard 做对比，或者在导出时把视图变换烘焙进图像。",
+          "Blender 4.x uses AgX colour management by default, and it handles highlights more conservatively than Filmic. The same texture therefore looks darker in Blender than in a game engine - that is a colour management difference, not a texture problem.",
+          "To match what the engine shows, switch the view transform to Standard temporarily for comparison, or bake the view transform into the image on export.",
         ],
       },
     ],
@@ -872,10 +872,10 @@ def build_material(basecolor, normal, roughness, ao, height=None):
   {
     id: "unity",
     highlights: [
-      "输出 Smoothness，省掉反向节点",
-      "附修正全部导入设置的 Editor 脚本",
-      "自动勾选 Normal Map 与 Occlusion",
-      "预设覆盖 URP/Lit 常用表面",
+      "Outputs Smoothness, no invert node needed",
+      "Includes an Editor script that fixes all import settings",
+      "Ticks Normal Map and Occlusion automatically",
+      "Presets cover the common URP/Lit surfaces",
     ],
     name: "Unity",
     shortName: "Unity",
@@ -1039,11 +1039,11 @@ public static class GeneratedTextureImporter
 //   Occlusion       <- AO             (tick "Occlusion" checkbox)
 //   Tiling X / Y    <- set on the Material, not the importer`,
     codeLanguage: "csharp",
-    codeCaption: "Unity — Editor 脚本，一键修正所有贴图的导入设置",
+    codeCaption: "Unity - Editor script that corrects every texture import setting",
     steps: [
       {
         title: "Generate the texture",
-        body: "默认 1024px。上方预设覆盖 URP/Lit 常用的八种表面，可以直接对应到项目里的材质命名。",
+        body: "The default 1024px works for PC. The presets above cover the eight surfaces most common in URP/Lit and map cleanly onto your project material naming.",
       },
       {
         title: "Download the five maps",
@@ -1068,31 +1068,31 @@ public static class GeneratedTextureImporter
     ],
     notes: [
       {
-        h2: "Smoothness 与 Roughness 是反的",
+        h2: "Smoothness and Roughness are inverses",
         p: [
-          "Unreal 用 Roughness，Unity 的 URP 着色器暴露的是 Smoothness —— 两者互为相反数。Roughness 0.2（很光滑）的表面，对应的 Smoothness 是 0.8。",
-          "直接把 Roughness 图连到 Smoothness 槽，得到的材质看起来像把湿的地方弄干、把干的地方弄湿。这类错误不会报任何警告，所以值得专门用一个 Invert 节点来处理。",
+          "Unreal uses Roughness while the Unity URP shader exposes Smoothness - the two are exact inverses. A surface with Roughness 0.2 (very smooth) has a Smoothness of 0.8.",
+          "Feeding a Roughness map straight into the Smoothness slot produces a material that looks as though the wet parts were dried and the dry parts wetted. Unity raises no warning for this, which is exactly why an Invert node is worth the extra step.",
         ],
       },
       {
-        h2: "勾选框没勾是最常见的疏漏",
+        h2: "Unticked checkboxes are the most common oversight",
         p: [
-          "URP/Lit 有两个容易被忘掉的复选框：Normal Map 和 Occlusion。你把贴图拖进槽位但不勾选，Unity 会导入这张图但完全不生效 —— 材质看起来就是平的，不报任何错。",
-          "脚本会直接勾上这两个。手动设置时，导入后请再确认一遍这两个框。",
+          "URP/Lit has two easy-to-forget checkboxes: Normal Map and Occlusion. Drag a texture into the slot without ticking them and Unity imports the texture but ignores it completely - the material just looks flat, with no error anywhere.",
+          "The script ticks both for you. When doing it by hand, confirm those two boxes after importing.",
         ],
       },
       {
-        h2: "移动端的平台覆盖设置",
+        h2: "Per-platform overrides for mobile",
         p: [
-          "Unity 的纹理导入面板可以对每个平台单独覆盖设置。PC 用 1024、DXT 压缩，移动端用 512、ASTC 压缩，这是常见组合 —— 勾上 Android 平台的 Override 就能生效。",
-          "移动端 GPU 通常不支持位移贴图，Height 图在移动端基本用不上，导入时可以考虑直接不导入它，省一份内存。",
+          "The Unity texture import panel can override settings per platform. A common combination is 1024 with DXT compression on PC and 512 with ASTC on mobile - tick the Android Override to apply it.",
+          "Mobile GPUs generally do not support displacement, so the Height map is mostly unused on mobile. You can simply skip importing it there and save the memory.",
         ],
       },
       {
-        h2: "SRP Batcher 与贴图的打包方式",
+        h2: "SRP Batcher and texture packing consistency",
         p: [
-          "SRP Batcher 要求材质使用的所有贴图具有一致的着色器关键字 —— 也就是说，同一个材质里的所有贴图必须都勾或都不勾 Albedo 的 Alpha 通道。",
-          "最省事的做法是给项目里的所有贴图统一一套导入设置，跑一次上面的脚本就能保证一致。",
+          "The SRP Batcher requires every texture used by a material to agree on its shader keywords - in practice, all textures in one material must either enable or disable the Albedo alpha channel consistently.",
+          "The simplest approach is a single import policy across the project. Running the included script once is enough to guarantee it.",
         ],
       },
     ],
@@ -1141,7 +1141,7 @@ export function getPlatform(id: PlatformId): PlatformConfig {
   return p;
 }
 
-/** 通用材质预设（未指定平台时使用） */
+/** Generic material presets, used when no platform is specified */
 export const GENERIC_PRESETS: PlatformPreset[] = [
   { key: "brick", label: "Brick", prompt: "weathered red brick wall, mortar joints, rough surface", engineMaterial: "" },
   { key: "wood", label: "Wood", prompt: "oak wood planks, visible grain, warm natural wood floor", engineMaterial: "" },

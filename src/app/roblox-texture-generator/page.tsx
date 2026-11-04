@@ -26,7 +26,7 @@ const SIBLINGS = PLATFORMS.filter((p) => p.id !== "roblox").map((p) => ({
   brand: p.brand,
 }));
 
-/** Roblox 官方头像皮肤 UV 模板的区域划分 */
+/** Region layout of the official Roblox avatar skin UV template */
 const AVATAR_UV = [
   { region: "Head & face", uv: "0.00–0.50 (face front), 0.50–1.00 (head back)", note: "Head" },
   { region: "Torso front", uv: "0.00–0.50, 0.50–1.00", note: "Torso" },
@@ -55,7 +55,7 @@ export default function RobloxTextureGeneratorPage() {
           </p>
 
           <div className="mt-5 grid gap-5 lg:grid-cols-[1fr_1.1fr]">
-            {/* UV 模板示意 */}
+            {/* UV template diagram */}
             <div className="surface-card p-5">
               <h3 className="font-display text-base font-bold text-ink-900">
                 Classic 587×640 template layout
@@ -71,7 +71,7 @@ export default function RobloxTextureGeneratorPage() {
                 aria-label="Roblox avatar UV template region map"
               >
                 <rect x="0" y="0" width="200" height="280" fill="#f5f7fb" stroke="#cdd6e6" />
-                {/* 头部 */}
+                {/* Head */}
                 <rect x="50" y="6" width="100" height="60" fill="#fde68a" stroke="#a16207" strokeWidth="1.5" />
                 <text x="100" y="32" textAnchor="middle" fontSize="11" fill="#78350f" fontWeight="700">
                   Head
@@ -79,7 +79,7 @@ export default function RobloxTextureGeneratorPage() {
                 <text x="100" y="48" textAnchor="middle" fontSize="8" fill="#92400e">
                   face + back
                 </text>
-                {/* 躯干 */}
+                {/* Torso */}
                 <rect x="50" y="70" width="100" height="56" fill="#bfdbfe" stroke="#1d4ed8" strokeWidth="1.5" />
                 <text x="100" y="94" textAnchor="middle" fontSize="11" fill="#1e3a8a" fontWeight="700">
                   Torso
@@ -87,7 +87,7 @@ export default function RobloxTextureGeneratorPage() {
                 <text x="100" y="110" textAnchor="middle" fontSize="8" fill="#1e40af">
                   front / back
                 </text>
-                {/* 手臂 */}
+                {/* Arms */}
                 <rect x="10" y="132" width="44" height="52" fill="#bbf7d0" stroke="#15803d" strokeWidth="1.5" />
                 <text x="32" y="154" textAnchor="middle" fontSize="9" fill="#166534" fontWeight="700">
                   LArm
@@ -96,7 +96,7 @@ export default function RobloxTextureGeneratorPage() {
                 <text x="168" y="154" textAnchor="middle" fontSize="9" fill="#166534" fontWeight="700">
                   RArm
                 </text>
-                {/* 腿 */}
+                {/* Legs */}
                 <rect x="10" y="190" width="44" height="80" fill="#fbcfe8" stroke="#be185d" strokeWidth="1.5" />
                 <text x="32" y="228" textAnchor="middle" fontSize="9" fill="#9d174d" fontWeight="700">
                   LLeg
@@ -108,7 +108,7 @@ export default function RobloxTextureGeneratorPage() {
               </svg>
             </div>
 
-            {/* 区域说明 */}
+            {/* Region breakdown */}
             <div className="surface-card p-5">
               <h3 className="font-display text-base font-bold text-ink-900">Region breakdown</h3>
               <ul className="mt-4 space-y-2.5">

@@ -154,7 +154,7 @@
   }
 }
 
-/* 纹理预览网格背景 */
+/* Texture preview grid backdrop */
 .tile-grid {
   background-color: var(--color-ink-50);
   background-image:

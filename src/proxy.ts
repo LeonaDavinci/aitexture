@@ -1,9 +1,9 @@
 import { NextResponse, type NextRequest } from "next/server";
 
 /**
- * 根级关键词路径 → /tools/* 旧路径 的 301 重定向。
- * 豆包调研建议的页面架构使用根级路径（/seamless-texture-generator/），
- * 关键词出现在 URL 根目录对 SEO 更有利，因此把旧路径永久重定向过去。
+ * 301 redirects from the old /tools/* paths to the root-level keyword paths.
+ * The researched page architecture uses root-level paths such as /seamless-texture-generator/,
+ * because a keyword at the root of the URL carries more SEO weight, so the old paths redirect permanently.
  */
 const REDIRECTS: Record<string, string> = {
   "/tools/ai-texture-generator": "/ai-texture-generator",

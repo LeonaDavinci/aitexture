@@ -1,17 +1,17 @@
 /**
- * 可无缝平铺（tileable）的程序化噪声库。
+ * Procedural noise library with strictly tileable output.
  *
- * 核心思路：
- * 1. 所有噪声的格点索引都对「周期」取模，因此函数在 [0,1)² 上严格周期；
- * 2. 传入的坐标必须是归一化的 [0,1) 瓦片坐标（或整数倍偏移），
- *    各向异性通过「频率分离」表达，而不是通过对坐标做非整数缩放 —— 后者会破坏周期性；
- * 3. Worley 用环形距离计算，保证跨边界的特征点连续。
+ * Core ideas:
+ * 1. Every noise function wraps its lattice indices by the period, so the result is strictly periodic on [0,1)^2;
+ * 2. Input coordinates must be normalised tile coordinates in [0,1) (or an integer multiple of them),
+ *    and anisotropy comes from separating frequencies rather than scaling coordinates by a non-integer, which would break periodicity;
+ * 3. Worley uses a circular distance so feature points stay continuous across the boundary.
  */
 
-/** 随机种子类型（32 位无符号整数） */
+/** Random seed type (32-bit unsigned integer) */
 export type Seed = number;
 
-/** 32-bit 整数哈希（快速混合），返回 [0,1) */
+/** Fast 32-bit integer hash, returns a value in [0,1) */
 export function hash2(ix: number, iy: number, seed: number): number {
   let h = (ix | 0) * 374761393 + (iy | 0) * 668265263 + (seed | 0) * 2147483647;
   h = Math.imul(h ^ (h >>> 13), 1274126177);
@@ -28,11 +28,11 @@ function lerp(a: number, b: number, t: number): number {
 }
 
 /**
- * 周期性 value noise。
- * @param x 格点坐标（横轴），需落在 [0, periodX) 的整数倍范围内
- * @param y 格点坐标（纵轴）
- * @param periodX 横轴周期（格点数，必须为正整数）
- * @param periodY 纵轴周期
+ * Periodic value noise.
+ * @param x lattice coordinate on the horizontal axis, within an integer multiple of [0, periodX)
+ * @param y lattice coordinate on the vertical axis
+ * @param periodX horizontal period in lattice cells, a positive integer
+ * @param periodY vertical period in lattice cells
  */
 export function valueNoiseTiled(
   x: number,
@@ -63,12 +63,12 @@ export function valueNoiseTiled(
 }
 
 /**
- * 周期性 fBm 噪声。
- * @param u 横轴归一化瓦片坐标 [0,1)
- * @param v 纵轴归一化瓦片坐标 [0,1)
- * @param freqX 横轴基础频率（整数，频率越高特征越密）
- * @param freqY 纵轴基础频率（与 freqX 分离即产生各向异性）
- * @param octaves 倍频数
+ * Periodic fBm noise.
+ * @param u normalised tile coordinate on the horizontal axis, [0,1)
+ * @param v normalised tile coordinate on the vertical axis, [0,1)
+ * @param freqX base horizontal frequency, an integer
+ * @param freqY base vertical frequency, separated from freqX to create anisotropy
+ * @param octaves number of octaves
  */
 export function fbmTiled(
   u: number,
@@ -96,7 +96,7 @@ export function fbmTiled(
   return sum / norm;
 }
 
-/** 周期性 ridged fBm（适合岩石、山脉、木纹走向） */
+/** Periodic ridged fBm, good for rock, mountains and wood grain */
 export function ridgedTiled(
   u: number,
   v: number,
@@ -124,8 +124,8 @@ export function ridgedTiled(
 }
 
 /**
- * 周期性 Worley（Voronoi）噪声。
- * 特征点固定在格点上，距离使用环形距离，因此跨瓦片边界依然连续。
+ * Periodic Worley (Voronoi) noise.
+ * Feature points sit on fixed lattice cells and distances use a circular metric, so the field stays continuous across tile boundaries.
  */
 export function worleyTiled(
   u: number,
@@ -151,7 +151,7 @@ export function worleyTiled(
       const px = (wx + hash2(wx, wy, seed)) / cellsX;
       const py = (wy + hash2(wx, wy, seed + 7717)) / cellsY;
 
-      // 环形距离：把差值折算到 [-0.5, 0.5]
+      // Circular distance: fold the difference into [-0.5, 0.5]
       let dx = px - u;
       dx -= Math.round(dx);
       let dy = py - v;
@@ -172,9 +172,9 @@ export function worleyTiled(
 }
 
 /**
- * 周期性条纹（用于拉丝金属、布纹）。
- * @param freq 整数频率
- * @param skew 整数倾斜量（乘以 freq 后必须为整数，才能保证边界闭合）
+ * Periodic stripes, used for brushed metal and woven cloth.
+ * @param freq integer frequency
+ * @param skew integer skew amount (must stay an integer multiple of freq for the boundary to close)
  */
 export function stripesTiled(
   u: number,

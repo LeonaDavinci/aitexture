@@ -5,7 +5,7 @@ import { SITE_URL, breadcrumbJsonLd, faqJsonLd, softwareAppJsonLd } from "@/lib/
 import { MATERIAL_PAGES } from "@/lib/keyword-clusters";
 import { PLATFORMS } from "@/lib/platforms";
 
-/** 首页平台卡片：直接复用平台注册表，避免两处维护 */
+/** Homepage platform cards reuse the platform registry so there is a single source of truth */
 const PLATFORM_CARDS = PLATFORMS.map((p) => ({
   ...p,
   href:
@@ -99,7 +99,7 @@ const USE_CASES = [
   },
 ];
 
-/** 与通用 AI 图像工具 / 竞品的差异化对比（豆包调研建议：差异化要落到可感知体验） */
+/** Differentiation against general AI image tools and desktop DCC tools */
 const COMPARISON = [
   {
     feature: "Tiles without visible seams",
@@ -276,12 +276,12 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* 工具预览 */}
+      {/* Tool preview */}
       <section className="mx-auto max-w-7xl px-4 py-14 sm:px-6 lg:px-8">
         <TextureGenerator />
       </section>
 
-      {/* 特性 */}
+      {/* Features */}
       <section className="border-y border-ink-200 bg-ink-50" aria-labelledby="features-heading">
         <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
           <div className="max-w-2xl">
@@ -309,7 +309,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* 对比表 —— 差异化定位 */}
+      {/* Comparison table */}
       <section className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8" aria-labelledby="compare-heading">
         <div className="max-w-2xl">
           <h2
@@ -358,7 +358,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* 流程 */}
+      {/* How it works */}
       <section className="border-y border-ink-200 bg-ink-50" aria-labelledby="how-heading">
         <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
           <div className="max-w-2xl">
@@ -386,7 +386,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* 按引擎找 —— 关键词集群 4 */}
+      {/* Find by engine - keyword cluster 4 */}
       <section className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8" aria-labelledby="engine-heading">
         <div className="max-w-2xl">
           <h2
@@ -428,7 +428,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* 按材质找 —— 关键词集群 5 */}
+      {/* Find by material - keyword cluster 5 */}
       <section className="border-y border-ink-200 bg-ink-50" aria-labelledby="material-heading">
         <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
           <div className="max-w-2xl">
@@ -490,7 +490,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* 场景 */}
+      {/* Use cases */}
       <section className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8" aria-labelledby="use-heading">
         <div className="max-w-2xl">
           <h2

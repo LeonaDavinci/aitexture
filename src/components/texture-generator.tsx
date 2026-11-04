@@ -62,7 +62,7 @@ export function TextureGenerator({ initialPrompt = "" }: { initialPrompt?: strin
   const [elapsed, setElapsed] = useState<number | null>(null);
   const urlsRef = useRef<string[]>([]);
 
-  // 支持通过 ?preset=brick 直达某个预设
+  // Supports ?preset=brick to deep link into a preset
   useEffect(() => {
     const p = new URLSearchParams(window.location.search).get("preset");
     if (!p) return;
@@ -115,7 +115,7 @@ export function TextureGenerator({ initialPrompt = "" }: { initialPrompt?: strin
         );
         const aoUrl = imageDataToUrl(heightToAO(tex.height, resolution));
 
-        // 单独构造 height 灰度图
+        // Build the height grayscale image separately
         const hCanvas = document.createElement("canvas");
         hCanvas.width = resolution;
         hCanvas.height = resolution;
@@ -133,7 +133,7 @@ export function TextureGenerator({ initialPrompt = "" }: { initialPrompt?: strin
         }
         const heightReal = hCanvas.toDataURL("image/png");
 
-        // 下载用 blob（把 albedo 画到 canvas 再 toBlob）
+        // Use a blob for download (draw the albedo to a canvas, then toBlob)
         const blob = await new Promise<Blob | null>((res) => {
           const c = document.createElement("canvas");
           c.width = resolution;
@@ -192,7 +192,7 @@ export function TextureGenerator({ initialPrompt = "" }: { initialPrompt?: strin
 
   return (
     <div className="grid gap-6 lg:grid-cols-[340px_1fr]">
-      {/* 控制面板 */}
+      {/* Control panel */}
       <div className="surface-card h-fit p-5 lg:sticky lg:top-24">
         <h2 className="font-display text-lg font-bold text-ink-900">Generator</h2>
 
@@ -305,7 +305,7 @@ export function TextureGenerator({ initialPrompt = "" }: { initialPrompt?: strin
         )}
       </div>
 
-      {/* 结果区 */}
+      {/* Results */}
       <div className="space-y-6">
         <div className="surface-card overflow-hidden">
           <div className="flex flex-wrap items-center gap-2 border-b border-ink-200 px-4 py-3">
