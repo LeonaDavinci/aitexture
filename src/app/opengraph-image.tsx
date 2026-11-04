@@ -1,8 +1,23 @@
 import { ImageResponse } from "next/og";
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
 
 export const alt = "AI Texture Generator - Free Seamless PBR Texture Maker";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
+/** Node runtime, because the brand mark is read from disk and inlined */
+export const runtime = "nodejs";
+
+/**
+ * Brand mark for the share card.
+ *
+ * The OG route is prerendered at build time, so the logo has to be inlined as a
+ * data URL - a remote fetch would fail because the domain is not live yet.
+ */
+function logoDataUrl(): string {
+  const buf = readFileSync(join(process.cwd(), "public", "logo.png"));
+  return `data:image/png;base64,${buf.toString("base64")}`;
+}
 
 /** Social share card: primary keyword plus the differentiating selling points */
 export default async function OpengraphImage() {
@@ -45,22 +60,19 @@ export default async function OpengraphImage() {
         </div>
 
         <div style={{ display: "flex", alignItems: "center", gap: 20 }}>
-          <div
+          {/* Brand mark: the site logo texture */}
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={logoDataUrl()}
+            width={68}
+            height={68}
             style={{
               width: 68,
               height: 68,
               borderRadius: 18,
-              background: "#f97316",
-              color: "#ffffff",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              fontSize: 30,
-              fontWeight: 800,
+              objectFit: "cover",
             }}
-          >
-            AT
-          </div>
+          />
           <div
             style={{
               display: "flex",

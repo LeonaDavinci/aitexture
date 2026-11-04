@@ -13,9 +13,14 @@ export function SiteHeader() {
     <header className="sticky top-0 z-50 border-b border-ink-200/80 bg-white/85 backdrop-blur-md">
       <div className="mx-auto flex h-16 max-w-7xl items-center gap-6 px-4 sm:px-6 lg:px-8">
         <Link href="/" className="flex shrink-0 items-center gap-2.5" aria-label="AI Texture home">
-          <span className="grid h-9 w-9 place-items-center rounded-xl bg-ink-900 text-sm font-bold text-white">
-            AT
-          </span>
+          <img
+            src="/logo.png"
+            width={36}
+            height={36}
+            alt=""
+            aria-hidden="true"
+            className="h-9 w-9 rounded-xl object-cover"
+          />
           <span className="font-display text-lg font-bold tracking-tight text-ink-900">
             AI<span className="text-sun-500">Texture</span>
           </span>

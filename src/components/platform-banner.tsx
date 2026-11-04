@@ -17,8 +17,8 @@ import type { PlatformConfig, PlatformId } from "@/lib/platforms";
 
 /** Official logo file paths (inside the public directory) */
 const OFFICIAL_LOGOS: Partial<Record<PlatformId, string>> = {
-  roblox: "/logos/roblox-icon.svg",
-  blender: "/logos/blender.svg",
+  roblox: "/logos/roblox-icon.png",
+  blender: "/logos/blender.png",
 };
 
 function RobloxMark({ color }: { color: string }) {
@@ -154,13 +154,13 @@ export function PlatformBanner({ config }: { config: PlatformConfig }) {
       />
 
       <div className="relative flex flex-col gap-6 p-7 sm:p-9 lg:flex-row lg:items-center lg:gap-10">
-        {/* Logo. Official logos keep their own colours, so they sit on a light
-            plate rather than directly on the brand gradient - the Roblox mark is
-            black and the Blender mark is orange, and both disappear on a
+        {/* Logo. The official marks keep their own colours, so they sit on a
+            light plate rather than directly on the brand gradient - the Roblox
+            mark is black and the Blender mark is orange, and both disappear on a
             saturated backdrop. */}
         <div
           className="grid shrink-0 place-items-center rounded-2xl p-4"
-          style={{ background: "rgba(255,255,255,0.92)" }}
+          style={{ background: "rgba(255,255,255,0.94)" }}
         >
           {official ? (
             // eslint-disable-next-line @next/next/no-img-element
@@ -319,9 +319,9 @@ export function PlatformComboBanner({
                         objectFit: "contain",
                         // Official marks keep their own colours, so they need a
                         // light plate to stay legible on the brand gradient.
-                        background: "rgba(255,255,255,0.92)",
+                        background: "rgba(255,255,255,0.94)",
                         borderRadius: 10,
-                        padding: 4,
+                        padding: 5,
                       }}
                     />
                   ) : (

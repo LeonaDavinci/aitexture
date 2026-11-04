@@ -56,9 +56,14 @@ export function SiteFooter() {
         <div className="grid gap-10 md:grid-cols-2 lg:grid-cols-6">
           <div className="lg:col-span-2">
             <div className="flex items-center gap-2.5">
-              <span className="grid h-9 w-9 place-items-center rounded-xl bg-ink-900 text-sm font-bold text-white">
-                AT
-              </span>
+              <img
+                src="/logo.png"
+                width={36}
+                height={36}
+                alt=""
+                aria-hidden="true"
+                className="h-9 w-9 rounded-xl object-cover"
+              />
               <span className="font-display text-lg font-bold tracking-tight text-ink-900">
                 AI<span className="text-sun-500">Texture</span>
               </span>

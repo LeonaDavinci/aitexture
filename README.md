@@ -65,6 +65,7 @@ node scripts/seo-check.mjs              # site-wide SEO audit across 22 routes
 node scripts/e2e-browser.mjs            # real headless Chrome E2E (requires npm start first)
 node scripts/fetch-page.mjs <url>       # extracts the body text of a client-rendered page
 node scripts/snapshot.mjs <base> <name:path>   # screenshots a route, optionally with @scrollY
+node scripts/build-logo-assets.mjs   # regenerates the logo PNGs from source
 ```
 
 `verify-engine.mjs` checks that the **continuous function is exactly equal at u=0 and u=1**
@@ -115,10 +116,19 @@ src/
 ├── proxy.ts                          301 redirects from the old /tools/* paths
 └── scripts/                          verification and preview scripts
 
-public/logos/
-├── roblox-icon.svg                   Roblox logo mark, extracted from Roblox Logo 2022.svg
-└── blender.svg                       Blender logo without text, from Wikimedia Commons
+public/
+├── logo.png                           512x512 site logo, cut from a supplied marble texture
+├── favicon.png                        32x32 favicon
+├── apple-touch-icon.png               180x180 apple touch icon
+└── logos/
+    ├── roblox-icon.png                256x256 Roblox logo mark, extracted from Roblox Logo 2022.svg
+    └── blender.png                    256x256 Blender logo without text, from Wikimedia Commons
 ```
+
+The site mark is a marble texture rather than a wordmark, so the brand reads as "material" before
+anyone reads the name. `scripts/build-logo-assets.mjs` regenerates every image from source: it
+crops a watermark-free region out of the supplied texture and rasterises the two platform marks to
+transparent PNGs.
 
 ---
 
