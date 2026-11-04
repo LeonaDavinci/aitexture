@@ -22,6 +22,9 @@ const targets = process.argv.slice(3).map((s) => {
 });
 const PORT = 9366;
 const CHROME = "C:/Program Files (x86)/Google/Chrome/Application/chrome.exe";
+// Optional viewport override: SNAPSHOT_WIDTH / SNAPSHOT_HEIGHT (e.g. 390x844 for mobile).
+const VW = Number(process.env.SNAPSHOT_WIDTH || 0);
+const VH = Number(process.env.SNAPSHOT_HEIGHT || 0);
 const outDir = join(root, ".preview", "snapshots");
 mkdirSync(outDir, { recursive: true });
 
@@ -78,6 +81,14 @@ const send = (method, params = {}) => {
 
 await send("Page.enable");
 await send("Runtime.enable");
+if (VW && VH) {
+  await send("Emulation.setDeviceMetricsOverride", {
+    width: VW,
+    height: VH,
+    deviceScaleFactor: 1,
+    mobile: VW < 700,
+  });
+}
 
 for (const t of targets) {
   await send("Page.navigate", { url: BASE + t.path });
