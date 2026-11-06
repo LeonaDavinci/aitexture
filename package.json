@@ -6,6 +6,7 @@
     "dev": "next dev",
     "build": "next build --webpack",
     "typecheck": "tsc --noEmit",
+    "favicon": "node scripts/build-favicon.mjs",
     "start": "next start",
     "lint": "next lint"
   },

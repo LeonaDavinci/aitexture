@@ -17,6 +17,17 @@ export const siteMetadata: Metadata = {
   description:
     "Free AI texture generator for production. Turn a prompt into seamless, tileable PBR textures with albedo, normal, roughness and AO maps. Runs in your browser.",
   applicationName: "AI Texture",
+  icons: {
+    icon: [
+      {
+        url: "/favicon.ico",
+        type: "image/x-icon",
+        sizes: "16x16 32x32 48x48 64x64 128x128 256x256",
+      },
+      { url: "/favicon.png", type: "image/png", sizes: "32x32" },
+    ],
+    apple: [{ url: "/apple-touch-icon.png", type: "image/png", sizes: "180x180" }],
+  },
   keywords: [
     "ai texture generator",
     "free ai texture generator",
